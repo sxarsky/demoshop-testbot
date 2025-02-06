@@ -1,26 +1,28 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
-from exceptions import ResourceNotFoundException
-from sqlmodel import Session, select
-from typing import List, Optional, Union
-from db import get_session
-from models.order import (
+from datetime import datetime
+from typing import List
+
+from fastapi import APIRouter
+from sqlmodel import select
+
+from api_insight.deps import SessionDep, CurrentUserDep
+from api_insight.exceptions import ResourceNotFoundException
+from api_insight.models.order import (
     Order, OrderCreate, OrderRead,
     OrderItem, OrderStatus
 )
-from models.product import Product
-from datetime import datetime
+from api_insight.models.product import Product
 
 router = APIRouter(
     prefix="/orders",
     tags=["orders"]
 )
 
-@router.post("/", response_model=OrderRead, status_code=201,
+@router.post("", response_model=OrderRead, status_code=201,
             summary="Create a new order",
             description="Create a new order with the specified products and quantities")
 async def create_order(
     order: OrderCreate,
-    session: Session = Depends(get_session)
+    session: SessionDep
 ):
     # Create new order
     db_order = Order(customer_email=order.customer_email)
@@ -55,13 +57,14 @@ async def create_order(
     session.refresh(db_order)
     return db_order
 
-@router.get("/", response_model=List[OrderRead],
+@router.get("", response_model=List[OrderRead],
            summary="Get all orders",
            description="Retrieve all orders with optional filtering")
 async def get_orders(
+    session: SessionDep,
+    current_user: CurrentUserDep,
     skip: int = 0,
-    limit: int = 100,
-    session: Session = Depends(get_session)
+    limit: int = 100
 ):
     query = select(Order)
     orders = session.exec(query.offset(skip).limit(limit)).all()
@@ -72,7 +75,7 @@ async def get_orders(
            description="Retrieve a specific order by its ID")
 async def get_order(
     order_id: int,
-    session: Session = Depends(get_session)
+    session: SessionDep
 ):
     order = session.get(Order, order_id)
     if not order:
@@ -84,7 +87,7 @@ async def get_order(
               description="Cancel an existing order")
 async def cancel_order(
     order_id: int,
-    session: Session = Depends(get_session)
+    session: SessionDep
 ):
     order = session.get(Order, order_id)
     if not order:

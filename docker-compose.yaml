@@ -3,6 +3,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: public.ecr.aws/skyramp/rampup/api-insight:v1.0.0
+    image: api-insight:v1.0
     ports:
       - 8000:8000

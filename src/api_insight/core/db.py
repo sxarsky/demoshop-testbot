@@ -1,15 +1,18 @@
-from sqlmodel import SQLModel, create_engine, Session
-from config import get_settings
+"""
+Database operations and utilities.
+"""
+import logging
 import time
 from typing import Callable, Any
-import logging
+from sqlmodel import SQLModel, create_engine, Session
+from api_insight.core.config import get_settings
 from sqlalchemy.exc import OperationalError, IntegrityError
 
 settings = get_settings()
 
 engine = create_engine(
     settings.database_url,
-    echo=True if settings.environment == "development" else False
+    echo=True if settings.ENVIRONMENT == "local" else False
 )
 
 logger = logging.getLogger(__name__)
@@ -43,43 +46,38 @@ def execute_with_retry(
     while retries < max_retries:
         try:
             return operation(*args, **kwargs)
-        
+
         except OperationalError as e:
             last_error = e
             retries += 1
             if retries == max_retries:
-                logger.error(f"Failed to execute database operation after {max_retries} attempts: {str(e)}")
+                logger.error("Failed to execute database operation after %d attempts: %s",
+                             max_retries, str(e))
                 raise
-            
-            logger.warning(f"Database operation failed (attempt {retries}/{max_retries}). Retrying in {retry_delay} seconds...")
+
+            logger.warning("Database operation failed (attempt %d/%d). Retrying in %s seconds...",
+                         retries, max_retries, retry_delay)
             time.sleep(retry_delay)
-            
+
         except IntegrityError as e:
-            logger.error(f"Integrity error in database operation: {str(e)}")
+            logger.error("Integrity error in database operation: %s", str(e))
             raise
-            
+
         except Exception as e:
-            logger.error(f"Unexpected error in database operation: {str(e)}")
+            logger.error("Unexpected error in database operation: %s", str(e))
             raise
 
     if last_error:
         raise last_error
 
 def init_db():
+    """
+    Initialize the database.
+    """
     def _init():
         SQLModel.metadata.create_all(engine)
-    
-    execute_with_retry(_init)
 
-def get_session():
-    session = Session(engine)
-    try:
-        yield session
-    except Exception as e:
-        logger.error(f"Error in get_session: {str(e)}")
-        raise e
-    finally:
-        session.close()
+    execute_with_retry(_init)
 
 # Example usage in a database operation
 def execute_db_operation(session: Session, operation: Callable, *args, **kwargs):
@@ -97,7 +95,7 @@ def execute_db_operation(session: Session, operation: Callable, *args, **kwargs)
     """
     def _execute():
         return operation(session, *args, **kwargs)
-    
+
     return execute_with_retry(_execute)
 
 # Usage example:

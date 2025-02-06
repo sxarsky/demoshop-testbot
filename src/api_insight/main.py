@@ -1,16 +1,23 @@
-from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import JSONResponse
+"""
+Main FastAPI application module.
+Handles application initialization, middleware setup, and route configuration.
+"""
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
-from contextlib import asynccontextmanager
-from db import init_db
-from config import get_settings
-from routers.product import router as products_router
-from routers.order import router as orders_router
-from exceptions import custom_request_validation_exception_handler
-from exceptions import resource_not_found_exception_handler
-from fastapi.exceptions import RequestValidationError, RequestValidationError
-from exceptions import ResourceNotFoundException
+from fastapi.exceptions import RequestValidationError
+
+from api_insight.core.db import init_db
+from api_insight.core.config import get_settings
+from api_insight.routers.product import router as products_router
+from api_insight.routers.order import router as orders_router
+from api_insight.routers.login import router as login_router
+from api_insight.routers.register import router as register_router
+from api_insight.exceptions import custom_request_validation_exception_handler
+from api_insight.exceptions import resource_not_found_exception_handler
+from api_insight.exceptions import ResourceNotFoundException
 
 
 settings = get_settings()
@@ -18,6 +25,13 @@ settings = get_settings()
 # Startup and shutdown events
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    """
+    Lifecycle manager for FastAPI application.
+    Handles database initialization on startup.
+    
+    Args:
+        app: FastAPI application instance
+    """
     # Startup: create tables
     init_db()
     yield
@@ -60,8 +74,24 @@ app.include_router(
     prefix=api_prefix,
 )
 
+app.include_router(
+    login_router,
+    prefix=api_prefix,
+)
+
+app.include_router(
+    register_router,
+    prefix=api_prefix,
+)
+
 # Custom OpenAPI schema configuration
 def custom_openapi():
+    """
+    Customize OpenAPI schema for API documentation.
+    
+    Returns:
+        dict: Modified OpenAPI schema
+    """
     if app.openapi_schema:
         return app.openapi_schema
 
@@ -76,7 +106,7 @@ def custom_openapi():
     openapi_schema["info"]["x-logo"] = {
         "url": "https://example.com/logo.png"
     }
-    
+
     app.openapi_schema = openapi_schema
     return app.openapi_schema
 
@@ -88,6 +118,12 @@ app.openapi = custom_openapi
          description="Returns basic API information",
          tags=["status"])
 async def root():
+    """
+    Root endpoint returning basic API information.
+    
+    Returns:
+        dict: API metadata including version and environment
+    """
     return {
         "message": "Product Catalog API",
         "version": settings.api_version,
@@ -102,6 +138,12 @@ async def root():
          description="Returns the health status of the API",
          tags=["status"])
 async def health_check():
+    """
+    Health check endpoint for monitoring API status.
+    
+    Returns:
+        dict: Health status information
+    """
     return {
         "status": "healthy",
         "environment": settings.environment,
@@ -131,21 +173,42 @@ async def health_check():
 #     )
 
 # Error handlers
-@app.exception_handler(HTTPException)
-async def http_exception_handler(request, exc):
-    return {
-        "status_code": exc.status_code,
-        "detail": exc.detail,
-        "message": str(exc)
-    }
+# @app.exception_handler(HTTPException)
+# async def http_exception_handler(request, exc):
+#     """
+#     Handle HTTP exceptions.
+    
+#     Args:
+#         request: Request instance
+#         exc: HTTPException instance
+    
+#     Returns:
+#         dict: Error response
+#     """
+#     print(exc)
+#     return {
+#         "status_code": exc.status_code,
+#         "detail": exc.detail,
+#         "message": str(exc.detail)
+#     }
 
-@app.exception_handler(Exception)
-async def general_exception_handler(request, exc):
-    return {
-        "status_code": 500,
-        "detail": "Internal Server Error",
-        "message": str(exc)
-    }
+# @app.exception_handler(Exception)
+# async def general_exception_handler(request, exc):
+#     """
+#     Handle uncaught exceptions.
+    
+#     Args:
+#         request: Request instance
+#         exc: Exception instance
+    
+#     Returns:
+#         dict: Error response
+#     """
+#     return {
+#         "status_code": 500,
+#         "detail": "Internal Server Error",
+#         "message": str(exc)
+#     }
 
 # Run the application
 if __name__ == "__main__":
