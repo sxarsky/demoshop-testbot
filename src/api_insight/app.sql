@@ -76,7 +76,7 @@ INSERT INTO orderitem (
     quantity,
     unit_price
 ) VALUES 
-    (0, 1, 1, 1, 999.99); 
+    (0, 0, 0, 1, 999.99); 
 
 -- Create and populate reviews table
 INSERT INTO review (

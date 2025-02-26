@@ -19,11 +19,11 @@ class ProductBase(SQLModel):
         category (str): The category of the product.
         in_stock (bool): Indicates if the product is in stock.
     """
-    name: str = Field(min_length=1, schema_extra={'pattern': r'^[A-Za-z]+$'})
-    description: str = Field(min_length=1, schema_extra={'pattern': r'^[A-Za-z\- ]+$'})
+    name: str = Field(min_length=1, schema_extra={'pattern': r'^[A-Za-z]+[A-Za-z:/.0-9\- ]*$'})
+    description: str = Field(min_length=1, schema_extra={'pattern': r'^[A-Za-z]+[A-Za-z:/.0-9\- ]*$'})
     price: float = Field(ge=0)
-    image_url: str = Field(min_length=1, schema_extra={'pattern': r'^[A-Za-z]+[A-Za-z:/.0-9]*$'})
-    category: str = Field(min_length=1, schema_extra={'pattern': r'^[A-Za-z]+$'})
+    image_url: str = Field(min_length=1, schema_extra={'pattern': r'^[A-Za-z]+[A-Za-z:/.0-9\- ]*$'})
+    category: str = Field(min_length=1, schema_extra={'pattern': r'^[A-Za-z]+[A-Za-z:/.0-9\- ]*$'})
     in_stock: bool = Field(default=False)
 
 
@@ -63,11 +63,11 @@ class ProductUpdate(SQLModel):
         in_stock (bool): The updated stock availability of the product.
     """
 
-    name: str = Field(min_length=1, schema_extra={'pattern': r'^[A-Za-z]+$'})
-    description: str = Field(min_length=1, schema_extra={'pattern': r'^[A-Za-z\- ]+$'})
+    name: str = Field(min_length=1, schema_extra={'pattern': r'^[A-Za-z]+[A-Za-z:/.0-9\- ]*$'})
+    description: str = Field(min_length=1, schema_extra={'pattern': r'^[A-Za-z]+[A-Za-z:/.0-9\- ]*$'})
     price: float = Field(ge=0)
-    image_url: str = Field(min_length=1, schema_extra={'pattern': r'^[A-Za-z]+[A-Za-z:/.0-9]*$'})
-    category: str = Field(min_length=1, schema_extra={'pattern': r'^[A-Za-z]+$'})
+    image_url: str = Field(min_length=1, schema_extra={'pattern': r'^[A-Za-z]+[A-Za-z:/.0-9\- ]*$'})
+    category: str = Field(min_length=1, schema_extra={'pattern': r'^[A-Za-z]+[A-Za-z:/.0-9\- ]*$'})
     in_stock: bool = Field(default=False)
 
 class ProductResponse(ProductBase):
@@ -81,5 +81,5 @@ class ProductResponse(ProductBase):
         id (int): The ID of the product.
     """
 
-    id: int
+    product_id: int
     created_at: datetime

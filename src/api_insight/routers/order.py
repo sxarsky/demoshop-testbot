@@ -30,6 +30,7 @@ async def create_order(
     Create a new order
     """
     db_order = Order(customer_email=order.customer_email)
+    db_order.order_id = crud.orders.set_order_id(session)
     session.add(db_order)
     session.flush()  # Flush to get the order ID
 
@@ -45,6 +46,7 @@ async def create_order(
 
         # Create order item
         order_item = OrderItem(
+            order_item_id=crud.orders.set_order_item_id(session),
             order_id=db_order.order_id,
             product_id=product.product_id,
             quantity=item.quantity,
@@ -73,6 +75,8 @@ async def get_orders(
     Get all orders
     """
     orders = crud.orders.get_orders(session, query_params.limit, query_params.offset)
+    for order in orders:
+        order.items = crud.orders.get_order_items(session, order.order_id)
     return orders
 
 @router.get("/{order_id}", response_model=OrderRead,
@@ -88,6 +92,7 @@ async def get_order(
     order = crud.orders.get_order(session, order_id)
     if not order:
         raise ResourceNotFoundException(status_code=404, detail="Order not found")
+    order.items = crud.orders.get_order_items(session, order_id)
     return order
 
 @router.delete("/{order_id}",

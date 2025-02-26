@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     api_version: str
     ENVIRONMENT: Literal["local", "development", "production"] = "local"
     SECRET_KEY: str = secrets.token_urlsafe(32)
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 360
     class Config:
         """Pydantic configuration for environment variables."""
         env_file = ".env"

@@ -57,7 +57,7 @@ class OrderItemCreate(OrderItemBase):
 
 class OrderItemRead(OrderItemBase):
     """Model for fetching order items from DB."""
-    id: int
+    order_item_id: int
     order_id: int
 
 class OrderBase(SQLModel):
@@ -84,7 +84,8 @@ class OrderCreate(SQLModel):
 
 class OrderRead(OrderBase):
     """Model for fetching order details from DB."""
-    id: int
+    order_id: int
+    items: List[OrderItem]
     created_at: datetime
     updated_at: datetime
 
