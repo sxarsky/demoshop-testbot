@@ -2,23 +2,60 @@
 Router for product-related endpoints.
 Handles CRUD operations for product management.
 """
+import json
 from datetime import datetime, timezone
-from typing import List, Annotated
+from typing import Callable, List, Annotated
 
-from fastapi import APIRouter, status, Path, Query, Depends
+from fastapi import APIRouter, status, Path, Query, Request, Response
 from fastapi.exceptions import HTTPException
+from fastapi.routing import APIRoute
 
 from sqlmodel import select
-from api_insight.deps import SessionDep, get_current_user
+from api_insight.deps import SessionDep
 from api_insight.exceptions import ResourceNotFoundException
 from api_insight.models.product import Product, ProductCreate, ProductUpdate, ProductResponse
 from api_insight.models.params import QueryParams
 from api_insight.crud import products
 
+class MultiContentTypeRequest(Request):
+    """
+    Custom request class to handle multiple content types.
+    """
+
+    async def body(self) -> bytes:
+        if not hasattr(self, "_body"):
+            body = await super().body()
+
+            content_type_value = self.headers.get("content-type")
+            if content_type_value.split(";", 1)[0].lower().strip() == "application/x-www-form-urlencoded":
+
+                form = await super().form()
+                body = json.dumps(form._dict).encode()
+
+                self._headers = self.headers.mutablecopy()
+                self.headers["content-type"] = "application/json"
+
+            self._body = body
+        return self._body
+
+
+class MultiContentTypeRoute(APIRoute):
+    """
+    Custom route class to handle multiple content types.
+    """
+    def get_route_handler(self) -> Callable:
+        original_route_handler = super().get_route_handler()
+
+        async def custom_route_handler(request: Request) -> Response:
+            request = MultiContentTypeRequest(request.scope, request.receive)
+            return await original_route_handler(request)
+
+        return custom_route_handler
+
 router = APIRouter(
     prefix="/products",
     tags=["products"],
-    dependencies=[Depends(get_current_user)]
+    route_class=MultiContentTypeRoute
 )
 
 @router.post("",
@@ -26,6 +63,18 @@ router = APIRouter(
     status_code=status.HTTP_201_CREATED,
     summary="Create a new product",
     description="Create a new product in the catalog with the provided details",
+    openapi_extra={
+        "requestBody": {
+            "content": {
+                "application/x-www-form-urlencoded": {
+                    "schema": ProductCreate.model_json_schema(),
+                },
+                "application/json": {
+                    "schema": ProductCreate.schema(),
+                }
+            }
+        }
+    }
 )
 async def create_product(
     product: ProductCreate,

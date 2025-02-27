@@ -16,7 +16,6 @@ from api_insight import crud
 router = APIRouter(
     prefix="/orders",
     tags=["orders"],
-    dependencies=[Depends(get_current_user)]
 )
 
 @router.post("", response_model=OrderRead, status_code=201,

@@ -12,7 +12,6 @@ from api_insight.crud import reviews
 
 router = APIRouter(
     prefix="/reviews",
-    dependencies=[Depends(get_current_user)]
 )
 
 @router.get("", response_model=List[ReviewResponse],
@@ -27,7 +26,8 @@ async def get_reviews(product_id: int, session: SessionDep):
 
 @router.get("/{review_id}", response_model=ReviewResponse,
             summary="Get a review",
-            description="Get a review for a product")
+            description="Get a review for a product",
+            include_in_schema=False)
 async def get_review(review_id: int, session: SessionDep):
     """
     Get a review
@@ -49,7 +49,8 @@ async def create_review(review: ReviewCreate, session: SessionDep, product_id: i
 
 @router.put("/{review_id}", response_model=ReviewResponse,
             summary="Update a review",
-            description="Update a review for a product")
+            description="Update a review for a product",
+            include_in_schema=False)
 async def update_review(review_id: int,
                         review_update: ReviewUpdate,
                         session: SessionDep):
@@ -70,7 +71,8 @@ async def update_review(review_id: int,
 @router.delete("/{review_id}",
                 summary="Delete a review",
                 description="Delete a review for a product",
-                status_code=status.HTTP_204_NO_CONTENT)
+                status_code=status.HTTP_204_NO_CONTENT,
+            include_in_schema=False)
 async def delete_review(review_id: int, session: SessionDep):
     """
     Delete a review
