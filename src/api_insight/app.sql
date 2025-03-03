@@ -48,6 +48,7 @@ CREATE TABLE IF NOT EXISTS review (
 
 -- Create and populate products table
 INSERT INTO product (
+    product_id,
     name,
     description,
     price,
@@ -55,7 +56,7 @@ INSERT INTO product (
     category,
     in_stock
 ) VALUES 
-    ('Laptop', 'High-performance laptop', 999.99, 'https://via.placeholder.com/150', 'Electronics', false);
+    (0, 'Laptop', 'High-performance laptop', 999.99, 'https://via.placeholder.com/150', 'Electronics', true);
 
 -- Create and populate orders table
 INSERT INTO "order" (
@@ -85,4 +86,4 @@ INSERT INTO review (
     rating,
     comment
 ) VALUES 
-    (0, 0, 5, 'Great');
+    (0, 0, 5, 'Great product');

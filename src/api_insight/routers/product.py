@@ -7,7 +7,6 @@ from datetime import datetime, timezone
 from typing import Callable, List, Annotated
 
 from fastapi import APIRouter, status, Path, Query, Request, Response
-from fastapi.exceptions import HTTPException
 from fastapi.routing import APIRoute
 
 from sqlmodel import select
@@ -81,8 +80,6 @@ async def create_product(
     session: SessionDep
 ):
     """Create a new product in the database."""
-    if product.in_stock is not False:
-        raise HTTPException(status_code=400, detail="Invalid value")
     db_product = products.create_product(session, product)
     return db_product
 
@@ -112,8 +109,6 @@ async def update_product(product_id: Annotated[int, Path()],
                    product_update: ProductUpdate,
                    session: SessionDep):
     """Update a product's details by its ID."""
-    if product_update.in_stock is not False:
-        raise HTTPException(status_code=400, detail="Invalid value")
     product = products.get_product(session, product_id)
     if not product:
         raise ResourceNotFoundException(status_code=404, detail="Product not found")
@@ -123,7 +118,6 @@ async def update_product(product_id: Annotated[int, Path()],
     product.updated_at = datetime.now(timezone.utc)
     session.add(product)
     session.commit()
-    # session.refresh(product)
     return product
 
 @router.delete("/{product_id}",
