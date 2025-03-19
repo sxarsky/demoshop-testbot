@@ -9,10 +9,9 @@ from typing import Callable, List, Annotated
 from fastapi import APIRouter, status, Path, Query, Request, Response
 from fastapi.routing import APIRoute
 
-from sqlmodel import select
 from api_insight.deps import SessionDep
 from api_insight.exceptions import ResourceNotFoundException
-from api_insight.models.product import Product, ProductCreate, ProductUpdate, ProductResponse
+from api_insight.models.product import ProductCreate, ProductUpdate, ProductResponse
 from api_insight.models.params import QueryParams
 from api_insight.crud import products
 
@@ -89,7 +88,12 @@ async def get_products(
     session: SessionDep
 ):
     """Get all products from the database."""
-    products_list = products.get_products(session, query_params.limit, query_params.offset, query_params.order, query_params.orderBy)
+    products_list = products.get_products(session,
+                                          query_params.limit,
+                                          query_params.offset,
+                                          query_params.order,
+                                          query_params.orderBy
+                                        )
     return products_list
 
 @router.get("/{product_id}",
@@ -99,7 +103,7 @@ async def get_products(
 )
 async def get_product(product_id: Annotated[int, Path()], session: SessionDep):
     """Get a single product by its ID."""
-    product = session.exec(select(Product).where(Product.product_id == product_id)).first()
+    product = products.get_product(session, product_id)
     if not product:
         raise ResourceNotFoundException(status_code=404, detail="Product not found")
     return product

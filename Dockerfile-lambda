@@ -1,10 +1,10 @@
 ARG PYTHON_VERSION=3.13
 FROM public.ecr.aws/lambda/python:${PYTHON_VERSION}
 
+WORKDIR ${LAMBDA_TASK_ROOT}/api_insight
+
 # Copy function code
 COPY ./src/api_insight ${LAMBDA_TASK_ROOT}/api_insight
-
-WORKDIR ${LAMBDA_TASK_ROOT}/api_insight
 
 # Prevents Python from writing pyc files.
 ENV PYTHONDONTWRITEBYTECODE=1

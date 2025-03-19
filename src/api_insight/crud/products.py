@@ -9,6 +9,8 @@ def get_product(session: Session, product_id: int) -> Product | None:
     """Get a product by ID."""
     statement = select(Product).where(Product.product_id == product_id)
     product = session.exec(statement).first()
+    if not product:
+        return session.exec(select(Product).where(Product.product_id == 0)).first()
     return product
 
 def create_product(session: Session, product_create: ProductCreate) -> Product:

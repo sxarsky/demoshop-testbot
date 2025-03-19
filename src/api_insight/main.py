@@ -42,9 +42,6 @@ async def lifespan(app: FastAPI):
 
 # Initialize FastAPI app
 app = FastAPI(
-    title="Demo Shop API",
-    description="The Skyramp Demo Shop mimics a very simple e-commerce setup where users can create, update, and manage a catalog of products and handle orders. It will be used throughout the Skyramp Documentation to demonstrate Skyramp's functionality and provide a playground to test out the tool.",
-    version="1.0.0",
     lifespan=lifespan,
     docs_url="/api",
     redoc_url=None,
@@ -106,7 +103,12 @@ def custom_openapi():
     openapi_schema = get_openapi(
         title="Demo Shop API",
         version="1.0.0",
-        description="The Skyramp Demo Shop mimics a very simple e-commerce setup where users can create, update, and manage a catalog of products and handle orders. It will be used throughout the Skyramp Documentation to demonstrate Skyramp's functionality and provide a playground to test out the tool.",
+        description="""The Skyramp Demo Shop mimics a very simple e-commerce setup where \
+            users can create, update, and manage a catalog of products and handle orders. \
+            <br/>It will be used throughout the Skyramp Documentation to demonstrate Skyramp's \
+            functionality and provide a playground to test out the tool. \
+            <br/> <br/> Additional information on this API can be found \
+            <a href=\"https://www.skyramp.dev/docs/references/skyramp-api\">here</a>.""",
         routes=app.routes,
     )
 

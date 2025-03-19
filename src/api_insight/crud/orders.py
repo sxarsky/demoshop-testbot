@@ -20,6 +20,8 @@ def get_order(session: Session, order_id: int) -> Order:
     """Get an order by ID."""
     statement = select(Order).where(Order.order_id == order_id)
     order = session.exec(statement).first()
+    if not order:
+        return session.exec(select(Order).where(Order.order_id == 0)).first()
     return order
 
 def get_order_items(session: Session, order_id: int) -> list[OrderItem]:
