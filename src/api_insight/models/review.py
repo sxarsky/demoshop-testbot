@@ -44,13 +44,11 @@ class ReviewCreate(ReviewBase):
 
 class ReviewResponse(ReviewBase):
     """Review response model"""
-    product_id: int
     model_config = {
         "json_schema_extra": {
             "example": {
                 "rating": 5,
-                "comment": "Great product!",
-                "product_id": 0
+                "comment": "Great product!"
             }
         }
     }

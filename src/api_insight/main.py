@@ -108,7 +108,7 @@ def custom_openapi():
             <br/>It will be used throughout the Skyramp Documentation to demonstrate Skyramp's \
             functionality and provide a playground to test out the tool. \
             <br/> <br/> Additional information on this API can be found \
-            <a href=\"https://www.skyramp.dev/docs/references/skyramp-api\">here</a>.""",
+            <a href=\"https://www.skyramp.dev/docs/references/demo-shop\">here</a>.""",
         routes=app.routes,
     )
 
