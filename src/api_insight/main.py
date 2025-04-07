@@ -6,6 +6,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from fastapi.openapi.utils import get_openapi
 from fastapi.exceptions import RequestValidationError
 from mangum import Mangum
@@ -78,6 +79,8 @@ app.include_router(
     orders_router,
     prefix=api_prefix,
 )
+
+app.mount("/sample", StaticFiles(directory="sample"), name="sample")
 
 # app.include_router(
 #     login_router,

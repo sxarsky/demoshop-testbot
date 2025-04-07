@@ -84,6 +84,11 @@ Resources:
           Properties:
             Path: /api/v1/products/{product_id}/reviews
             Method: GET
+        GetSampleTrace:
+          Type: HttpApi
+          Properties:
+            Path: /sample/trace.json
+            Method: GET
     Metadata:
       Dockerfile: Dockerfile-lambda
       DockerContext: .
