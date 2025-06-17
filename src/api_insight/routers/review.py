@@ -1,7 +1,7 @@
 """Router for Review API Endpoints"""
 from typing import List, Annotated
 from fastapi import APIRouter, Query, status
-from api_insight.deps import CacheDep, GetIpDep
+from api_insight.deps import CacheDep, GetIpDep, EnsureSessionDep
 from api_insight.models.review import (
     ReviewResponse, ReviewCreate
 )
@@ -10,6 +10,7 @@ from api_insight.crud import reviews
 
 router = APIRouter(
     prefix="/reviews",
+    dependencies=[EnsureSessionDep]
 )
 
 @router.get("", response_model=List[ReviewResponse],

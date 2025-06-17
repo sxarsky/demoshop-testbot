@@ -3,7 +3,7 @@ Order API
 """
 from typing import List, Annotated
 from fastapi import APIRouter, Query
-from api_insight.deps import CacheDep, GetIpDep
+from api_insight.deps import CacheDep, GetIpDep, EnsureSessionDep
 from api_insight.exceptions import ResourceNotFoundException
 from api_insight.models.order import (
     OrderCreate, OrderRead,
@@ -15,6 +15,7 @@ from api_insight.crud import orders
 router = APIRouter(
     prefix="/orders",
     tags=["orders"],
+    dependencies=[EnsureSessionDep]
 )
 
 @router.post("", response_model=OrderRead, status_code=201,

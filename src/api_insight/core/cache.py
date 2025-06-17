@@ -17,16 +17,16 @@ def create_pool():
     if settings.SKYRAMP_ENVIRONMENT != "local":
         kwargs['connection_class']=SSLConnection
         kwargs['ssl_cert_reqs']="required"
-        kwargs['username']=settings.redis_user
-        kwargs['password']=settings.redis_pass
-        kwargs['ssl_certfile']=settings.redis_client_crt
-        kwargs['ssl_keyfile']=settings.redis_client_key
-        kwargs['ssl_ca_certs']=settings.redis_ca_pem
+        kwargs['username']=settings.REDIS_USER
+        kwargs['password']=settings.REDIS_PASS
+        kwargs['ssl_certfile']=settings.REDIS_CLIENT_CRT
+        kwargs['ssl_keyfile']=settings.REDIS_CLIENT_KEY
+        kwargs['ssl_ca_certs']=settings.REDIS_CA_PEM
         kwargs['ssl_min_version']=ssl.TLSVersion.TLSv1_3
 
     return ConnectionPool(
-        host=settings.redis_host,
-        port=settings.redis_port,
+        host=settings.REDIS_HOST,
+        port=settings.REDIS_PORT,
         decode_responses=True,
         # optional:
         **kwargs
@@ -38,8 +38,8 @@ def init_data(cache: Redis, session_id: str):
     default_data = "demoshop_default"
 
     for collection in collections:
-        resource_keys = cache.keys(f"{session_id}:{collection}:*")
-        if resource_keys and len(resource_keys) > 0:
+        resource_keys_exists = cache.exists(f"{session_id}:{collection}:0")
+        if resource_keys_exists:
             logger.debug('skip init data')
             continue
         pattern = f"{default_data}:{collection}:*"
@@ -56,7 +56,7 @@ def init_data(cache: Redis, session_id: str):
                     resource_id = k.split(":")[-1]
                     new_key = f"{session_id}:{collection}:{resource_id}"
                     pipe.json().set(new_key, '$', v)
-                    pipe.expire(new_key, settings.key_ttl_seconds)
+                    pipe.expire(new_key, settings.KEY_TTL_SECONDS)
             pipe.execute()
 
 def get_or_create_products_index(cache: Redis, key):
@@ -66,7 +66,7 @@ def get_or_create_products_index(cache: Redis, key):
         index.info()
         return index
     except ResponseError:
-        print("index doesn't exist, creating")
+        logger.debug("index doesn't exist, creating")
 
     definition=IndexDefinition(prefix=[f"{key}:products:"], index_type=IndexType.JSON)
     index.create_index((
@@ -77,7 +77,7 @@ def get_or_create_products_index(cache: Redis, key):
         TextField("$.category", as_name='category'),
         ),
         definition=definition,
-        temporary=get_settings().key_ttl_seconds
+        temporary=settings.KEY_TTL_SECONDS
     )
     return index
 
@@ -98,7 +98,7 @@ def get_or_create_orders_index(cache: Redis, key):
         NumericField("$.total_amount", as_name='total_amount'),
         ),
         definition=definition,
-        temporary=get_settings().key_ttl_seconds
+        temporary=settings.KEY_TTL_SECONDS
     )
     return index
 
@@ -116,7 +116,7 @@ def get_or_create_order_items_index(cache: Redis, key):
         NumericField("$.order_id", as_name='order_id'),
         ),
         definition=definition,
-        temporary=get_settings().key_ttl_seconds
+        temporary=settings.KEY_TTL_SECONDS
     )
     return index
 
@@ -133,7 +133,7 @@ def get_or_create_reviews_index(cache: Redis, key):
     index.create_index((
         NumericField("$.product_id", as_name='product_id')),
         definition=definition,
-        temporary=get_settings().key_ttl_seconds
+        temporary=settings.KEY_TTL_SECONDS
     )
     return index
 

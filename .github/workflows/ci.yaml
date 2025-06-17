@@ -66,7 +66,7 @@ jobs:
 
       - name: Calculate Short SHA
         run: echo "SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
-
+          
       - name: Build and push lambda image
         uses: docker/build-push-action@v6
         with:
@@ -74,4 +74,3 @@ jobs:
           push: true
           provenance: false
           tags: ${{ env.ECR_REGISTRY}}:${{ env.SHORT_SHA }}
-      

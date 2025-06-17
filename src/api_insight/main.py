@@ -38,7 +38,7 @@ app.add_exception_handler(RequestValidationError, custom_request_validation_exce
 app.add_exception_handler(ResourceNotFoundException, resource_not_found_exception_handler)
 
 # API version prefix
-api_prefix = f"/api/{settings.api_version}"
+api_prefix = f"/api/{settings.API_VERSION}"
 
 # Include routers
 products_router.include_router(
@@ -100,7 +100,7 @@ async def root():
     """
     return {
         "message": "Demo Shop API",
-        "version": settings.api_version,
+        "version": settings.API_VERSION,
         "api-docs": "/api"
     }
 
@@ -118,7 +118,7 @@ async def health_check():
     """
     return {
         "status": "healthy",
-        "version": settings.api_version
+        "version": settings.API_VERSION
     }
 
 handler = Mangum(app)

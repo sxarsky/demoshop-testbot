@@ -8,7 +8,7 @@ from typing import Callable, List, Annotated
 from fastapi import APIRouter, status, Path, Query, Request, Response
 from fastapi.routing import APIRoute
 
-from api_insight.deps import CacheDep, GetIpDep
+from api_insight.deps import CacheDep, GetIpDep, EnsureSessionDep
 from api_insight.exceptions import ResourceNotFoundException
 from api_insight.models.product import ProductCreate, ProductUpdate, ProductResponse
 from api_insight.models.params import QueryParams
@@ -52,7 +52,8 @@ class MultiContentTypeRoute(APIRoute):
 router = APIRouter(
     prefix="/products",
     tags=["products"],
-    route_class=MultiContentTypeRoute
+    route_class=MultiContentTypeRoute,
+    dependencies=[EnsureSessionDep]
 )
 
 @router.post("",
