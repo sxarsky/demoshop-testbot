@@ -8,7 +8,6 @@ from redis import Redis
 from redis.commands.json.path import Path
 from redis.commands.search.query import Query
 from api_insight.models.product import Product, ProductCreate, ProductUpdate
-# from api_insight.core.cache import get_or_create_products_index
 
 DEFAULT_KEY = "demoshop_default"
 
@@ -69,8 +68,8 @@ def update_product(cache: Redis, session_id: str, product_id: str, product_updat
         return None
     product = Product.model_validate(product)
     product_data = product_update.model_dump(exclude_unset=True)
-    for key, value in product_data.items():
-        setattr(product, key, value)
+    for k, v in product_data.items():
+        setattr(product, k, v)
     product.updated_at = datetime.now(timezone.utc)
     product_encoded = jsonable_encoder(product.model_dump())
     cache.json().set(f'{key}:products:{product_id}', Path.root_path(), product_encoded)
