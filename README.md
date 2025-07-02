@@ -1,12 +1,10 @@
-# Vite + React + Tailwind CSS Starter
+# Skyramp Demo Shop
 
-This project is a minimal React UI starter built with Vite and Tailwind CSS.
+This is a sample UI for the [https://skyramp.dev/docs/references/demo-shop](Skyramp Demo Shop). 
 
-## Features
-- ⚡️ Vite for fast development
-- ⚛️ React for UI
-- 🎨 Tailwind CSS for styling
-- 🔥 HMR (Hot Module Replacement)
+You can use this UI as a playground for the Skyramp trace collection and test generation via the CLI and agent.
+
+Learn more about Skyramp at our [https://skyramp.dev](website)
 
 ## Getting Started
 
@@ -23,11 +21,5 @@ npm run dev
 ```
 
 Open [http://localhost:5173](http://localhost:5173) to view your app.
-
-## Customization
-- Edit `src/App.jsx` to start building your UI.
-- Use Tailwind utility classes in your components.
-
----
 
 Generated with Vite + React + Tailwind CSS
