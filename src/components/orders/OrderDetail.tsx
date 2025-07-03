@@ -67,7 +67,7 @@ export default function OrderDetail() {
     <div className="min-h-screen bg-white px-6 py-10" style={{ width: '100%', maxWidth: '48rem', margin: '0 auto' }}>
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Order #{order.order_id}</h1>
-        <div className="text-gray-700 mb-1">Customer: <b>{order.customer_email}</b></div>
+        <div className="text-gray-700 mb-1">Customer Email: <b>{order.customer_email}</b></div>
         <div className="text-gray-700 mb-1">Status: <b>{order.status}</b></div>
         <div className="text-gray-700 mb-1">Total: <b>${order.total_amount.toFixed(2)}</b></div>
         {order.status !== 'cancelled' && (
