@@ -21,10 +21,11 @@ export default function OrderList() {
         return res.json();
       })
       .then((data) => {
-        // The API returns an array directly
-        setOrders(Array.isArray(data) ? data : []);
+        // The API returns an array directly; filter out cancelled orders
+        const filtered = Array.isArray(data) ? data.filter((order) => order.status !== 'cancelled') : [];
+        setOrders(filtered);
         setError(null);
-        console.log("order store", Array.isArray(data) ? data : []);
+        console.log("order store", filtered);
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
