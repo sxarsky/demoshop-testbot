@@ -10,9 +10,9 @@ export default function OrderItem({ order }: { order: Order }) {
         style={{ gap: '1rem', padding: 0, width: '100%' }}
       >
         {/* Order Info */}
-        <div className="flex flex-col flex-grow items-start gap-2" style={{ gap: '0.5rem' }}>
-          <h2 className="text-lg font-semibold leading-none m-0 p-0" style={{ margin: 0, padding: 0, lineHeight: 1 }}>
-            {order.customer_email} - {order.items.length} items
+        <div className="flex flex-col flex-grow items-start gap-2" style={{ gap: '0.5rem', minWidth: '16rem', marginRight: '20rem' }}>
+          <h2 className="text-lg leading-none m-0 p-0" style={{ margin: 0, padding: 0, lineHeight: 1, fontWeight: 400 }}>
+            <span style={{ fontWeight: 400 }}>{order.customer_email} - {order.items.length} items</span>
           </h2>
           <p className="text-xs text-muted-foreground leading-none m-0 p-0" style={{ margin: 0, padding: 0, lineHeight: 1 }}>
             ${order.total_amount.toFixed(2)}
@@ -22,7 +22,10 @@ export default function OrderItem({ order }: { order: Order }) {
         {/* View Details */}
         <Button
           variant="link"
-          className="text-blue-600 ml-auto"
+          className="ml-auto"
+          style={{ color: '#60a5fa', transition: 'background 0.2s', background: '#f3f4f6' }}
+          onMouseOver={e => { e.currentTarget.style.background = '#e5e7eb'; }}
+          onMouseOut={e => { e.currentTarget.style.background = '#f3f4f6'; }}
           onClick={() => {
             window.location.href = `/orders/${order.order_id}`;
           }}

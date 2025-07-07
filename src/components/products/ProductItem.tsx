@@ -39,13 +39,20 @@ export default function ProductItem({ product }: { product: Product }) {
         />
 
         {/* Product Info */}
-        <div className="flex flex-col flex-grow items-start gap-2" style={{ gap: '0.5rem' }}>
-          <h2 className="text-lg font-semibold leading-none m-0 p-0" style={{ margin: 0, padding: 0, lineHeight: 1 }}>{product.name}</h2>
+        <div className="flex flex-col flex-grow items-start gap-2" style={{ gap: '0.5rem', minWidth: '12rem', marginRight: '8rem' }}>
+          <h2 className="text-lg leading-none m-0 p-0" style={{ margin: 0, padding: 0, lineHeight: 1, fontWeight: 400 }}>{product.name}</h2>
           <p className="text-xs text-muted-foreground leading-none m-0 p-0" style={{ margin: 0, padding: 0, lineHeight: 1 }}>${product.price.toFixed(2)}</p>
         </div>
 
         {/* View Details */}
-        <Button variant="link" className="text-blue-600 ml-auto" onClick={() => navigate(`/products/${product.product_id}`)}>
+        <Button
+          variant="link"
+          className="ml-auto"
+          style={{ color: '#60a5fa', transition: 'background 0.2s', background: '#f3f4f6' }}
+          onMouseOver={e => { e.currentTarget.style.background = '#e5e7eb'; }}
+          onMouseOut={e => { e.currentTarget.style.background = '#f3f4f6'; }}
+          onClick={() => navigate(`/products/${product.product_id}`)}
+        >
           View Details
         </Button>
       </CardContent>

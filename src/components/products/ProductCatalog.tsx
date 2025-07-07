@@ -73,14 +73,16 @@ export default function ProductCatalog() {
           <nav className="flex items-center text-sm font-medium gap-x-16">
             <a
               href="/products"
-              className="text-black underline underline-offset-4"
+              className="underline underline-offset-4"
+              style={{ color: '#60a5fa' }}
             >
               Products   
             </a>
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <a
               href="/orders"
-              className="text-blue-600 hover:underline"
+              className="hover:underline"
+              style={{ color: '#60a5fa' }}
             >
               Orders
             </a>

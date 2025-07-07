@@ -18,9 +18,9 @@ function Header() {
         </div>
         {/* Nav Links */}
         <nav className="flex items-center text-sm font-medium gap-x-16">
-          <a href="/products" className="text-black underline underline-offset-4">Products</a>
+          <a href="/products" className="underline underline-offset-4" style={{ color: '#60a5fa' }}>Products</a>
           &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-          <a href="/orders" className="text-blue-600 hover:underline">Orders</a>
+          <a href="/orders" className="hover:underline" style={{ color: '#60a5fa' }}>Orders</a>
         </nav>
       </div>
     </header>
@@ -267,6 +267,7 @@ export default function ProductDetail() {
           className="w-48"
           onClick={handleDelete}
           disabled={deleting}
+          style={{ color: '#fff' }}
         >
           {deleting ? 'Deleting...' : 'Delete Product'}
         </Button>

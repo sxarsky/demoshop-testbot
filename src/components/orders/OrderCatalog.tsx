@@ -68,11 +68,11 @@ export default function OrderCatalog() {
 
           {/* Nav Links */}
           <nav className="flex items-center text-sm font-medium gap-x-16">
-            <a href="/products" className="text-blue-600 hover:underline">
+            <a href="/products" className="hover:underline" style={{ color: '#60a5fa' }}>
               Products
             </a>
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <a href="/orders" className="text-black underline underline-offset-4">
+            <a href="/orders" className="underline underline-offset-4" style={{ color: '#60a5fa' }}>
               Orders
             </a>
           </nav>
@@ -80,7 +80,9 @@ export default function OrderCatalog() {
       </header>
 
       <div className="flex flex-col items-center pb-4 mb-8 gap-4">
-        <h1 className="text-4xl font-bold text-gray-900 text-center">Orders</h1>
+        <h1 className="text-4xl font-bold text-gray-900 text-center" style={{}}>
+          Orders Catalog
+        </h1>
       </div>
       <div style={{ width: '100%', maxWidth: '48rem', margin: '0 auto' }}>
         <OrderList />
