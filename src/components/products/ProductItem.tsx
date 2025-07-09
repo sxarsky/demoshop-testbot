@@ -9,7 +9,14 @@ type Product = {
   image_url?: string;
 };
 
-export default function ProductItem({ product, horizontal = false, minHeight }: { product: Product, horizontal?: boolean, minHeight?: number }) {
+interface ProductItemProps {
+  product: Product;
+  horizontal?: boolean;
+  minHeight?: number;
+  'data-testId'?: string;
+}
+
+export default function ProductItem({ product, horizontal = false, minHeight, 'data-testId': dataTestId }: ProductItemProps) {
   const [imgSrc, setImgSrc] = useState(
     product.image_url && product.image_url.trim() !== ""
       ? product.image_url
@@ -37,6 +44,7 @@ export default function ProductItem({ product, horizontal = false, minHeight }: 
           marginBottom: '0.5rem',
           gap: '1rem', // decreased gap for even less space between name and button
         }}
+        data-testId={dataTestId}
       >
         {/* Product Image */}
         <img
@@ -82,6 +90,7 @@ export default function ProductItem({ product, horizontal = false, minHeight }: 
         gap: '1.25rem', // more vertical space
         minHeight: minHeight || '180px',
       }}
+      data-testId={dataTestId}
     >
       {/* Product Image */}
       <img
