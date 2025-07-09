@@ -41,7 +41,12 @@ export default function OrderList() {
       style={{ gap: '2.5rem', display: 'flex', flexDirection: 'column', maxWidth: '64rem', width: '100%', margin: '0 auto' }}
     >
       {orders.map((order) => (
-        <OrderItem key={order.order_id} order={order} gapOverride={"16rem"} />
+        <OrderItem
+          key={order.order_id}
+          order={order}
+          gapOverride={"16rem"}
+          data-testId={`order-id-${order.customer_email} - ${order.items.length} items`}
+        />
       ))}
     </div>
   );
