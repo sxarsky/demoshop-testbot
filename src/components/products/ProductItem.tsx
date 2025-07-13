@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
+import { productImageUrlMap } from "@/lib/product_utils"
 import { useNavigate } from "react-router-dom"
 
 type Product = {
@@ -17,11 +18,12 @@ interface ProductItemProps {
 }
 
 export default function ProductItem({ product, horizontal = false, minHeight, 'data-testId': dataTestId }: ProductItemProps) {
-  const [imgSrc, setImgSrc] = useState(
-    product.image_url && product.image_url.trim() !== ""
-      ? product.image_url
-      : "/placeholder.webp"
-  )
+  // Prefer mapped local image if available
+  const initialImgSrc = product.image_url && product.image_url.trim() !== ""
+    ? (productImageUrlMap[product.image_url] || product.image_url)
+    : "/placeholder.webp";
+  const [imgSrc, setImgSrc] = useState(initialImgSrc)
+
   const navigate = useNavigate();
   const handleImgError = () => {
     if (imgSrc !== "/placeholder.webp") {
@@ -47,14 +49,16 @@ export default function ProductItem({ product, horizontal = false, minHeight, 'd
         data-testId={dataTestId}
       >
         {/* Product Image */}
-        <img
-          src={imgSrc}
-          alt={product.name}
-          style={{ width: '72px', height: '72px', objectFit: 'cover', borderRadius: '0.5rem', flexShrink: 0 }}
-          className="object-cover rounded bg-muted border-0 outline-none"
-          loading="lazy"
-          onError={handleImgError}
-        />
+        <div style={{ width: '72px', height: '72px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f3f4f6', borderRadius: '0.5rem', flexShrink: 0 }}>
+          <img
+            src={imgSrc}
+            alt={product.name}
+            style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', borderRadius: '0.5rem' }}
+            className="object-contain rounded bg-muted border-0 outline-none"
+            loading="lazy"
+            onError={handleImgError}
+          />
+        </div>
         {/* Product Info */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 0, flexGrow: 1, marginLeft: '0.25rem' }}>
           <span style={{ fontSize: '1.1rem', fontWeight: 500, color: '#1e293b', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{product.name}</span>
@@ -93,17 +97,35 @@ export default function ProductItem({ product, horizontal = false, minHeight, 'd
       data-testId={dataTestId}
     >
       {/* Product Image */}
-      <img
-        src={imgSrc}
-        alt={product.name}
-        style={{ width: '240px', height: '240px', marginBottom: '0.5rem', objectFit: 'cover', borderRadius: '0.5rem' }}
-        className="object-cover rounded bg-muted flex items-center justify-center text-xs text-muted-foreground border-0 outline-none"
-        loading="lazy"
-        onError={handleImgError}
-      />
+      <div style={{ width: '240px', height: '240px', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f3f4f6', borderRadius: '0.5rem' }}>
+        <img
+          src={imgSrc}
+          alt={product.name}
+          style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', borderRadius: '0.5rem' }}
+          className="object-contain rounded bg-muted flex items-center justify-center text-xs text-muted-foreground border-0 outline-none"
+          loading="lazy"
+          onError={handleImgError}
+        />
+      </div>
       {/* Product Info */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.15rem', width: '100%', marginTop: '0.5rem' }}>
-        <h2 style={{ fontSize: '1.1rem', fontWeight: 500, color: '#1e293b', margin: 0, textAlign: 'center' }}>{product.name}</h2>
+        <h2
+          style={{
+            fontSize: '1.1rem',
+            fontWeight: 500,
+            color: '#1e293b',
+            margin: 0,
+            textAlign: 'center',
+            width: '100%',
+            maxWidth: '220px',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+          }}
+          title={product.name}
+        >
+          {product.name}
+        </h2>
         <p style={{ fontSize: '1.05rem', color: '#0f766e', fontWeight: 500, margin: 0, textAlign: 'center' }}>${product.price.toFixed(2)}</p>
       </div>
       {/* View Details */}

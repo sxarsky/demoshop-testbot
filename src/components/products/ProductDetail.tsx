@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
+import { productImageUrlMap } from '@/lib/product_utils'
 import { Button } from '@/components/ui/button'
 import { NavBar } from '../ui/navbar';
 
@@ -217,11 +218,13 @@ export default function ProductDetail() {
                 style={{ justifyContent: 'center', marginBottom: '2.5rem' }} // Center image
               >
                 <img
-                  src={product.image_url || "/placeholder.webp"}
+                  src={productImageUrlMap[product.image_url] || product.image_url || "/placeholder.webp"}
                   alt={product.name}
                   style={{
                     width: '24rem', // 384px
                     height: '20rem', // 320px
+                    maxWidth: '100%',
+                    maxHeight: '100%',
                     objectFit: 'contain',
                     borderRadius: '0.75rem', // rounded-xl
                     background: '#f9fafb', // bg-gray-50
