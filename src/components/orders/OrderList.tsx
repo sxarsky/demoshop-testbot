@@ -18,7 +18,7 @@ export default function OrderList() {
     const fetchOrders = () => {
       setLoading(true);
       const sessionId = getSessionIdFromCookie();
-      fetch('https://dev.demoshop.skyramp.dev/api/v1/orders', {
+      fetch('https://dev.demoshop.skyramp.dev/api/v1/orders?limit=50', {
         headers: { 'Authorization': `Bearer ${getSessionIdFromCookie()}` }
       })
         .then(res => {
@@ -39,12 +39,12 @@ export default function OrderList() {
     fetchOrders();
   }, []);
 
+  // Always sort orders locally by descending order_id
+  const sortedOrders = [...orders].sort((a, b) => b.order_id - a.order_id);
+
   if (loading) return <div className="text-center py-8">Loading orders...</div>;
   if (error) return <div className="text-center text-red-500 py-8">{error}</div>;
-  if (!orders.length) return <div className="text-center py-8">No orders found.</div>;
-
-  // Sort orders by order_id descending
-  const sortedOrders = [...orders].sort((a, b) => b.order_id - a.order_id);
+  if (!sortedOrders.length) return <div className="text-center py-8">No orders found.</div>;
 
   return (
     <div

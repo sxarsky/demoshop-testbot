@@ -110,9 +110,19 @@ export default function OrderDetail() {
         </h2>
         <div className="flex flex-col gap-4 mb-8" style={{ textAlign: 'left', paddingLeft: 0 }} data-testId="order-detail-items">
           {products.length === 0 && <div className="text-gray-500" data-testId="order-detail-no-products">No products found for this order.</div>}
-          {products.map((product, idx) => (
-            <ProductItem key={product.product_id || idx} product={product} horizontal={true} data-testId={`order-detail-product-${product.product_id || idx}`} />
-          ))}
+          {products.map((product, idx) => {
+            // Find the quantity for this product from order.items
+            const item = order.items?.find((i: any) => String(i.product_id) === String(product.product_id));
+            const quantity = item?.quantity ?? 1;
+            return (
+              <div key={product.product_id || idx} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <div style={{ minWidth: '2.5rem', textAlign: 'center', fontWeight: 600, color: '#374151', fontSize: '1.1rem', flexShrink: 0 }} data-testId={`order-detail-product-qty-${product.product_id || idx}`}>x{quantity}</div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <ProductItem product={product} horizontal={true} data-testId={`order-detail-product-${product.product_id || idx}`} />
+                </div>
+              </div>
+            );
+          })}
         </div>
         {/* Add extra space below order items */}
         <div style={{ height: '1.5rem' }} />

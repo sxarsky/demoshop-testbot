@@ -219,7 +219,25 @@ const AddOrderForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                   </SelectContent>
                 </Select>
               </div>
-              <Input type="number" min={1} max={999} value={addingProduct.quantity} onChange={e => setAddingProduct(ap => ({ ...ap, quantity: Math.max(1, Number(e.target.value)) }))} style={{ border: '1.5px solid #d1d5db', fontSize: '1rem', width: '3.5rem', textAlign: 'center', paddingLeft: 0, paddingRight: 0, borderRadius: '0.375rem', height: '2.5rem' }} />
+              <Input
+                type="number"
+                min={1}
+                value={addingProduct.quantity}
+                onChange={e => {
+                  const val = Number(e.target.value);
+                  setAddingProduct(ap => ({ ...ap, quantity: val > 0 ? val : 1 }));
+                }}
+                style={{
+                  border: '1.5px solid #d1d5db',
+                  fontSize: '1rem',
+                  width: '3.5rem',
+                  textAlign: 'center',
+                  paddingLeft: 0,
+                  paddingRight: 0,
+                  borderRadius: '0.375rem',
+                  height: '2.5rem',
+                }}
+              />
               <Button type="button" onClick={() => handleAddProduct()} style={{ background: '#f3f4f6', color: '#111', border: '1.5px solid transparent', outline: 'none', transition: 'background 0.2s, border-color 0.2s, outline 0.2s', marginLeft: '0.5rem', height: '2.5rem', borderRadius: '0.375rem', fontWeight: 500 }} onMouseOver={e => { e.currentTarget.style.background = '#d1d5db'; e.currentTarget.style.border = '1.5px solid #000'; }} onMouseOut={e => { e.currentTarget.style.background = '#f3f4f6'; e.currentTarget.style.border = '1.5px solid transparent'; }}>Add</Button>
             </div>
             {/* List of products to be added */}
