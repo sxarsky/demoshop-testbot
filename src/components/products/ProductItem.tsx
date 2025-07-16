@@ -129,15 +129,17 @@ export default function ProductItem({ product, horizontal = false, minHeight, 'd
         <p style={{ fontSize: '1.05rem', color: '#0f766e', fontWeight: 500, margin: 0, textAlign: 'center' }}>${product.price.toFixed(2)}</p>
       </div>
       {/* View Details */}
-      <Button
-        variant="link"
-        style={{ color: '#60a5fa', background: '#f3f4f6', borderRadius: '0.5rem', fontWeight: 500, padding: '0.5rem 1.25rem', border: '1px solid #9ca3af', boxShadow: 'none', transition: 'background 0.2s', minWidth: '7rem', textAlign: 'center', marginTop: '0.5rem', fontSize: '1rem' }}
-        onMouseOver={e => { e.currentTarget.style.background = '#e5e7eb'; }}
-        onMouseOut={e => { e.currentTarget.style.background = '#f3f4f6'; }}
-        onClick={() => navigate(`/products/${product.product_id}`)}
-      >
-        View Details
-      </Button>
+      <div style={{ width: '100%', minHeight: '3.2rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Button
+          variant="link"
+          style={{ color: '#60a5fa', background: '#f3f4f6', borderRadius: '0.5rem', fontWeight: 500, padding: '0.5rem 1.25rem', border: '1px solid #9ca3af', boxShadow: 'none', transition: 'background 0.2s', minWidth: '7rem', textAlign: 'center', fontSize: '1rem' }}
+          onMouseOver={e => { e.currentTarget.style.background = '#e5e7eb'; }}
+          onMouseOut={e => { e.currentTarget.style.background = '#f3f4f6'; }}
+          onClick={() => navigate(`/products/${product.product_id}`)}
+        >
+          View Details
+        </Button>
+      </div>
     </div>
   );
 }

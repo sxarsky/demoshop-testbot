@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import ProductItem from "../products/ProductItem";
 import { NavBar } from "@/components/ui/navbar";
+import { getSessionIdFromCookie } from '../../lib/utils';
 
 export default function OrderDetail() {
   const { order_id } = useParams<{ order_id: string }>();
@@ -16,7 +17,10 @@ export default function OrderDetail() {
   useEffect(() => {
     if (!order_id) return;
     setLoading(true);
-    fetch(`https://demoshop.skyramp.dev/api/v1/orders/${order_id}`)
+    const sessionId = getSessionIdFromCookie();
+    fetch(`https://dev.demoshop.skyramp.dev/api/v1/orders/${order_id}`, {
+      headers: { 'Authorization': `Bearer ${sessionId}` }
+    })
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch order details");
         return res.json();
@@ -27,11 +31,13 @@ export default function OrderDetail() {
         // Fetch product details for each order item
         if (data.items && data.items.length > 0) {
           Promise.all(
-            data.items.map((item: any) =>
-              fetch(`https://demoshop.skyramp.dev/api/v1/products/${item.product_id}`)
+            data.items.map((item: any) => {
+              return fetch(`https://dev.demoshop.skyramp.dev/api/v1/products/${item.product_id}`, {
+                headers: { 'Authorization': `Bearer ${sessionId}` }
+              })
                 .then((res) => res.ok ? res.json() : null)
                 .catch(() => null)
-            )
+            })
           ).then((products) => setProducts(products.filter(Boolean)));
         } else {
           setProducts([]);
@@ -44,8 +50,9 @@ export default function OrderDetail() {
   const handleCancelOrder = async () => {
     if (!order_id) return;
     setCancelling(true);
+    const sessionId = getSessionIdFromCookie();
     try {
-      const res = await fetch(`https://demoshop.skyramp.dev/api/v1/orders/${order_id}`, { method: 'DELETE' });
+      const res = await fetch(`https://dev.demoshop.skyramp.dev/api/v1/orders/${order_id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${sessionId}` } });
       if (!res.ok) throw new Error('Failed to cancel order');
       // Show banner on /orders
       localStorage.setItem(

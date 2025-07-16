@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/select";
 import "@/styles/select-zindex-workaround.css";
 import { useNavigate } from "react-router-dom";
+import { getSessionIdFromCookie } from '../../lib/utils';
 
 interface Product {
   name: string;
@@ -50,10 +51,11 @@ const AddProductForm: React.FC = () => {
     };
 
     try {
-      const res = await fetch("https://demoshop.skyramp.dev/api/v1/products", {
+      const res = await fetch("https://dev.demoshop.skyramp.dev/api/v1/products", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${getSessionIdFromCookie()}`
         },
         body: JSON.stringify(payload),
       });

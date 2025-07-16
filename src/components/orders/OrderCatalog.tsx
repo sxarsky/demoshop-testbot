@@ -1,6 +1,39 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import OrderList from "./OrderList";
+import { NavBar } from '@/components/ui/navbar';
+import { getSessionIdFromCookie } from '@/lib/utils';
+
+// Utility to get or generate a persistent session ID
+async function getOrCreateSessionId() {
+  const cookieName = 'demoshop_session_id';
+  const match = document.cookie.match(/(?:^|; )demoshop_session_id=([^;]*)/);
+  if (match) return match[1];
+  // Generate new session ID using API
+  try {
+    const res = await fetch('https://dev.demoshop.skyramp.dev/api/v1/generate', {
+      headers: { 'Authorization': `Bearer ${getSessionIdFromCookie()}` }
+    });
+    if (!res.ok) throw new Error('Failed to generate session ID');
+    const data = await res.json();
+    const sessionId = data.session_id || data.id || '';
+    document.cookie = `${cookieName}=${sessionId}; path=/;`;
+    return sessionId;
+  } catch (err) {
+    // Fallback to random words if API fails
+    const words = [
+      'apple', 'banana', 'cherry', 'delta', 'echo', 'foxtrot', 'golf', 'hotel', 'india', 'juliet',
+      'kilo', 'lima', 'mango', 'november', 'oscar', 'papa', 'quebec', 'romeo', 'sierra', 'tango',
+      'umbrella', 'victor', 'whiskey', 'xray', 'yankee', 'zulu', 'orange', 'peach', 'plum', 'berry',
+      'cloud', 'river', 'mountain', 'forest', 'ocean', 'desert', 'prairie', 'meadow', 'valley', 'hill',
+      'star', 'moon', 'sun', 'comet', 'nova', 'orbit', 'galaxy', 'asteroid', 'meteor', 'nebula'
+    ];
+    const pick = () => words[Math.floor(Math.random() * words.length)];
+    const sessionId = `${pick()}-${pick()}-${pick()}`;
+    document.cookie = `${cookieName}=${sessionId}; path=/;`;
+    return sessionId;
+  }
+}
 
 const AddOrderForm = React.lazy(() => import("./AddOrderForm"));
 
@@ -10,6 +43,7 @@ export default function OrderCatalog() {
     customer_email: string;
     itemCount: number;
   } | null>(null);
+  const [sessionId, setSessionId] = useState('');
 
   // Show deleted banner if present in localStorage
   useEffect(() => {
@@ -20,8 +54,16 @@ export default function OrderCatalog() {
     }
   }, []);
 
+  useEffect(() => {
+    let mounted = true;
+    getOrCreateSessionId().then(id => {
+      if (mounted) setSessionId(id);
+    });
+    return () => { mounted = false; };
+  }, []);
+
   return (
-    <div className="min-h-screen bg-white px-6 py-10" style={{ width: '100%', maxWidth: '64rem', margin: '0 auto', paddingLeft: '1rem' }}>
+    <div className="min-h-screen bg-white px-6 py-10" style={{ width: '100%', maxWidth: '64rem', margin: '0 auto', paddingLeft: 0 }}>
       {/* Deleted Banner */}
       {deletedBanner && (
         <div className="max-w-xl mx-auto mb-6">
@@ -52,82 +94,10 @@ export default function OrderCatalog() {
       )}
 
       {/* Top Navigation */}
-      <header className="w-full" style={{ marginLeft: '1rem' }}>
-        <div className="max-w-4xl mx-auto px-0 py-4 flex items-center justify-between" style={{ width: '100%' }}>
-          {/* Logo + Brand */}
-          <div className="flex items-center" style={{ gap: '0.5rem' }}>
-            <a href="https://skyramp.dev" target="_blank" rel="noopener noreferrer">
-              <img
-                src="/logo.avif"
-                alt="Skyramp Logo"
-                width={150}
-                height={100}
-                className="object-contain"
-                style={{ cursor: 'pointer' }}
-              />
-            </a>
-            <span
-              style={{
-                fontSize: '1.25rem', // text-xl
-                fontWeight: 600, // semi-bold
-                color: '#111827', // gray-900
-                marginLeft: '0.5rem',
-                letterSpacing: '-0.01em',
-                userSelect: 'none',
-              }}
-            >
-              Demo Shop Admin Console
-            </span>
-          </div>
-
-          {/* Nav Links */}
-          <nav className="flex items-center text-sm font-medium" style={{ gap: '1rem', marginLeft: 'auto' }}>
-            <a 
-              href="/products" 
-              style={{ color: '#60a5fa' }}
-              onMouseOver={e => { e.currentTarget.style.textDecoration = 'underline'; e.currentTarget.style.textUnderlineOffset = '4px'; }}
-              onMouseOut={e => { e.currentTarget.style.textDecoration = 'none'; }}
-            >
-              Products
-            </a>
-            <a href="/orders" style={{ color: '#60a5fa', textDecoration: 'underline', textUnderlineOffset: '4px' }}
-              onMouseOver={e => { e.currentTarget.style.textDecoration = 'underline'; e.currentTarget.style.textUnderlineOffset = '4px'; }}
-              onMouseOut={e => { e.currentTarget.style.textDecoration = 'underline'; e.currentTarget.style.textUnderlineOffset = '4px'; }}
-              >
-              Orders
-            </a>
-            <a href="/" style={{
-              color: '#fff',
-              background: '#3b82f6',
-              borderRadius: '0.5rem',
-              padding: '0.5rem 1.25rem',
-              fontWeight: 600,
-              boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
-              border: 'none',
-              textDecoration: 'none',
-              transition: 'background 0.2s, color 0.2s',
-              display: 'inline-block',
-            }}
-            onMouseOver={e => { e.currentTarget.style.background = '#2563eb'; }}
-            onMouseOut={e => { e.currentTarget.style.background = '#3b82f6'; }}
-            onClick={async (e) => {
-              e.preventDefault();
-              try {
-                await fetch('https://demoshop.skyramp.dev/api/v1/reset', { method: 'POST' });
-                window.location.reload();
-              } catch (err) {
-                alert('Failed to reset state.');
-              }
-            }}
-          >
-            Clear State
-          </a>
-          </nav>
-        </div>
-      </header>
+      <NavBar active="orders" />
 
       {/* Page Heading directly below nav */}
-      <div style={{ width: '100%', marginLeft: '1rem' }}>
+      <div style={{ width: '100%', marginLeft: 0 }}>
         <h1
           className="text-4xl font-bold text-gray-900"
           style={{

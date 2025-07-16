@@ -15,9 +15,18 @@ export default function ProductDetail() {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
+  // Utility to get session ID from cookie
+  function getSessionIdFromCookie() {
+    const match = document.cookie.match(/(?:^|; )demoshop_session_id=([^;]*)/);
+    return match ? match[1] : '';
+  }
+
   useEffect(() => {
     setLoading(true)
-    fetch(`https://demoshop.skyramp.dev/api/v1/products/${id}`)
+    const sessionId = getSessionIdFromCookie();
+    fetch(`https://dev.demoshop.skyramp.dev/api/v1/products/${id}`, {
+      headers: { 'Authorization': `Bearer ${sessionId}` }
+    })
       .then(res => {
         if (!res.ok) throw new Error('Failed to fetch product')
         return res.json()
@@ -42,6 +51,7 @@ export default function ProductDetail() {
   // Save product changes
   const handleSave = async () => {
     setSaving(true);
+    const sessionId = getSessionIdFromCookie();
     try {
       const payload = {
         ...formState,
@@ -50,14 +60,15 @@ export default function ProductDetail() {
         image_url: formState.image_url || '',
       };
       const { product_id, created_at, updated_at, ...reducedPayload } = payload; // Exclude unwanted fields
-      const res = await fetch(`https://demoshop.skyramp.dev/api/v1/products/${product.product_id}`, {
+      const res = await fetch(`https://dev.demoshop.skyramp.dev/api/v1/products/${product.product_id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${sessionId}`
+        },
         body: JSON.stringify(reducedPayload),
       });
       if (!res.ok) throw new Error('Failed to update product');
-      const updated = await res.json();
-      setProduct(updated);
       setEditMode(false);
     } catch (err) {
       alert('Failed to save product.');
@@ -69,8 +80,12 @@ export default function ProductDetail() {
   // Delete product
   const handleDelete = async () => {
     setDeleting(true);
+    const sessionId = getSessionIdFromCookie();
     try {
-      await fetch(`https://demoshop.skyramp.dev/api/v1/products/${product.product_id}`, { method: 'DELETE' });
+      await fetch(`https://dev.demoshop.skyramp.dev/api/v1/products/${product.product_id}`, { 
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${sessionId}` }
+      });
       // Pass deleted info to ProductCatalog via localStorage
       localStorage.setItem('deletedProductBanner', JSON.stringify({ name: product.name }));
       navigate('/products');

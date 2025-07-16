@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/select";
 import "@/styles/select-zindex-workaround.css";
 import { useNavigate } from "react-router-dom";
+import { getSessionIdFromCookie } from '../../lib/utils';
 
 interface Product {
   product_id: string;
@@ -39,7 +40,9 @@ const AddOrderForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch("https://demoshop.skyramp.dev/api/v1/products?limit=50")
+    fetch("https://dev.demoshop.skyramp.dev/api/v1/products?limit=50", {
+      headers: { 'Authorization': `Bearer ${getSessionIdFromCookie()}` }
+    })
       .then(res => res.json())
       .then(data => setProductsList(data))
       .catch(() => setProductsList([]));
@@ -79,9 +82,12 @@ const AddOrderForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       return;
     }
     try {
-      const res = await fetch("https://demoshop.skyramp.dev/api/v1/orders", {
+      const res = await fetch("https://dev.demoshop.skyramp.dev/api/v1/orders", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          'Authorization': `Bearer ${getSessionIdFromCookie()}`
+        },
         body: JSON.stringify(order),
       });
       if (!res.ok) throw new Error("Failed to create order");

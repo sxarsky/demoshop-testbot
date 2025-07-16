@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { useLocation } from "react-router-dom"
 import ProductItem from "./ProductItem"
+import { getSessionIdFromCookie } from '../../lib/utils';
 
 interface Product {
   product_id: number
@@ -20,7 +21,10 @@ export default function ProductList() {
 
   const fetchProducts = () => {
     setLoading(true)
-    fetch("https://demoshop.skyramp.dev/api/v1/products?limit=50")
+    const sessionId = getSessionIdFromCookie();
+    fetch('https://dev.demoshop.skyramp.dev/api/v1/products', {
+      headers: { 'Authorization': `Bearer ${sessionId}` }
+    })
       .then(res => {
         if (!res.ok) throw new Error("Failed to fetch products")
         return res.json()

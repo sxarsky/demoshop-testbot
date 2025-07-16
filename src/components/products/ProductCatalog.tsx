@@ -7,7 +7,6 @@ import { NavBar } from '../ui/navbar';
 export default function ProductCatalog() {
   const [showAddForm, setShowAddForm] = useState(false)
   const [deletedBanner, setDeletedBanner] = useState<{ name: string } | null>(null);
-  const [ordersHover, setOrdersHover] = useState(false); // Track hover state for Orders link
 
   // Listen for custom close event from AddProductForm
   useEffect(() => {
@@ -25,8 +24,14 @@ export default function ProductCatalog() {
     }
   }, []);
 
+  // Helper to get session ID from cookie
+  function getSessionIdFromCookie() {
+    const match = document.cookie.match(/(?:^|; )demoshop_session=([^;]*)/);
+    return match ? decodeURIComponent(match[1]) : '';
+  }
+
   return (
-    <div className="min-h-screen bg-white px-6 py-10" style={{ width: '100%', maxWidth: '64rem', margin: '0 auto' }}>
+    <div className="min-h-screen bg-white px-6 py-10" style={{ width: '100%', maxWidth: '64rem', margin: '0 auto', paddingLeft: 0 }}>
       {/* Deleted Banner */}
       {deletedBanner && (
         <div className="max-w-xl mx-auto mb-6">
@@ -55,7 +60,7 @@ export default function ProductCatalog() {
       )}
 
       {/* Top Navigation */}
-      <NavBar active="products" forceUnderlineProducts={true} />
+      <NavBar active="products" />
 
       {/* Page Heading directly below nav */}
       <h1
@@ -76,7 +81,6 @@ export default function ProductCatalog() {
           variant="default"
           type="button"
           onClick={() => {
-            console.log('Add Product button clicked');
             setShowAddForm(true);
           }}
           style={{

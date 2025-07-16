@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import OrderItem from "./OrderItem";
+import { getSessionIdFromCookie } from '../../lib/utils';
 
 export type Order = {
   order_id: number;
@@ -14,21 +15,28 @@ export default function OrderList() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setLoading(true);
-    fetch("https://demoshop.skyramp.dev/api/v1/orders?limit=50")
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch orders");
-        return res.json();
+    const fetchOrders = () => {
+      setLoading(true);
+      const sessionId = getSessionIdFromCookie();
+      fetch('https://dev.demoshop.skyramp.dev/api/v1/orders', {
+        headers: { 'Authorization': `Bearer ${getSessionIdFromCookie()}` }
       })
-      .then((data) => {
-        // The API returns an array directly; filter out cancelled orders
-        const filtered = Array.isArray(data) ? data.filter((order) => order.status !== 'cancelled') : [];
-        setOrders(filtered);
-        setError(null);
-        console.log("order store", filtered);
-      })
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
+        .then(res => {
+          if (!res.ok) throw new Error("Failed to fetch orders");
+          return res.json();
+        })
+        .then((data) => {
+          // The API returns an array directly; filter out cancelled orders
+          const filtered = Array.isArray(data) ? data.filter((order) => order.status !== 'cancelled') : [];
+          setOrders(filtered);
+          setError(null);
+          console.log("order store", filtered);
+        })
+        .catch(err => setError(err.message))
+        .finally(() => setLoading(false));
+    };
+
+    fetchOrders();
   }, []);
 
   if (loading) return <div className="text-center py-8">Loading orders...</div>;
@@ -48,7 +56,7 @@ export default function OrderList() {
           key={order.order_id}
           order={order}
           gapOverride={"16rem"}
-          dataTestId={`order-id-${order.customer_email} - ${order.items.length} items`}
+          data-testId={`order-id-${order.customer_email} - ${order.items.length} items`}
         />
       ))}
     </div>
