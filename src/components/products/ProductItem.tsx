@@ -61,7 +61,7 @@ export default function ProductItem({ product, horizontal = false, minHeight, 'd
         </div>
         {/* Product Info */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 0, flexGrow: 1, marginLeft: '0.25rem' }}>
-          <span style={{ fontSize: '1.1rem', fontWeight: 500, color: '#1e293b', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{product.name}</span>
+          <span data-testId={`product-name-${product.product_id}`} style={{ fontSize: '1.1rem', fontWeight: 500, color: '#1e293b', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{product.name}</span>
           <span style={{ fontSize: '1rem', color: '#0f766e', fontWeight: 500, margin: 0, marginTop: '0.25rem' }}>${product.price.toFixed(2)}</span>
         </div>
         <Button
@@ -110,6 +110,7 @@ export default function ProductItem({ product, horizontal = false, minHeight, 'd
       {/* Product Info */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.15rem', width: '100%', marginTop: '0.5rem' }}>
         <h2
+          data-testId={`product-name-${product.product_id}`}
           style={{
             fontSize: '1.1rem',
             fontWeight: 500,

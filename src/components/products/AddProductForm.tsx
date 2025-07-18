@@ -92,6 +92,7 @@ const AddProductForm: React.FC = () => {
       }}
     >
       <div
+        data-testId="add-product-modal-box"
         style={{
           maxWidth: "28rem", // ~448px
           width: "100%",
@@ -156,7 +157,7 @@ const AddProductForm: React.FC = () => {
           onSubmit={handleSubmit}
         >
           <div className="pb-1">
-            <label className="block text-sm font-medium text-gray-700 mb-1 text-left">
+            <label className="block text-sm font-medium text-gray-700 mb-1 text-left" data-testId="add-product-label-name">
               Product Name
             </label>
             <Input
@@ -186,7 +187,7 @@ const AddProductForm: React.FC = () => {
           </div>
 
           <div className="pb-1">
-            <label className="block text-sm font-medium text-gray-700 mb-1 text-left">
+            <label className="block text-sm font-medium text-gray-700 mb-1 text-left" data-testId="add-product-label-description">
               Description
             </label>
             <Textarea
@@ -216,7 +217,7 @@ const AddProductForm: React.FC = () => {
           </div>
 
           <div className="pb-1">
-            <label className="block text-sm font-medium text-gray-700 mb-1 text-left">
+            <label className="block text-sm font-medium text-gray-700 mb-1 text-left" data-testId="add-product-label-image-url">
               Image URL
             </label>
             <Input
@@ -246,7 +247,7 @@ const AddProductForm: React.FC = () => {
           </div>
 
           <div className="pb-1">
-            <label className="block text-sm font-medium text-gray-700 mb-1 text-left">
+            <label className="block text-sm font-medium text-gray-700 mb-1 text-left" data-testId="add-product-label-category">
               Category
             </label>
             <Input
@@ -276,7 +277,7 @@ const AddProductForm: React.FC = () => {
           </div>
 
           <div className="pb-1">
-            <label className="block text-sm font-medium text-gray-700 mb-1 text-left">
+            <label className="block text-sm font-medium text-gray-700 mb-1 text-left" data-testId="add-product-label-instock">
               In stock?
             </label>
             <Select
@@ -329,7 +330,7 @@ const AddProductForm: React.FC = () => {
           </div>
 
           <div className="pb-1">
-            <label className="block text-sm font-medium text-gray-700 mb-1 text-left">
+            <label className="block text-sm font-medium text-gray-700 mb-1 text-left" data-testId="add-product-label-price">
               Price
             </label>
             <Input

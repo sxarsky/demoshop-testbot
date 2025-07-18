@@ -38,6 +38,7 @@ function SessionIdDisplay({ sessionId, onEdit, onCopy, copied }: { sessionId: st
       <span
         style={{ color: '#1e293b', fontWeight: 700, marginLeft: '0.5rem', cursor: 'pointer', position: 'relative', display: 'inline-block' }}
         title={copied ? 'Copied!' : 'Click to copy session ID'}
+        data-testId='session-id-value'
       >
         {sessionId}
         {copied && (
@@ -59,6 +60,7 @@ function SessionIdDisplay({ sessionId, onEdit, onCopy, copied }: { sessionId: st
         )}
       </span>
       <button
+        data-testId="session-id-copy-btn"
         onClick={onCopy}
         style={{
           background: 'transparent',
@@ -223,10 +225,11 @@ export function NavBar({ active, forceUnderlineProducts, hideLinks }: { active: 
   const navLinksGap = active === 'orders' ? '2.5rem' : '1rem';
 
   return (
-    <header className="w-full" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+    <header className="w-full" style={{ display: 'flex', justifyContent: 'center', width: '100%' }} data-testId="navbar-header">
       <div
         className={`mx-auto px-0 py-4 flex items-center justify-between`}
         style={{ width: hideLinks ? '800px' : navWidth, maxWidth: hideLinks ? '800px' : navMaxWidth }}
+        data-testId="navbar-container"
       >
         {/* Logo + Brand (always left-aligned) */}
         <div className="flex items-center" style={{ gap: logoGap }}>
@@ -297,14 +300,14 @@ export function NavBar({ active, forceUnderlineProducts, hideLinks }: { active: 
                   }
                 }}
                 copied={copied}
-                data-testId="session-id-value"
+                data-testId="session-id-display"
               />
             )}
           </span>
         </div>
         {/* Nav Links */}
         {!hideLinks && (
-          <nav className="flex items-center text-sm font-medium justify-end" style={{ gap: '0.1rem', marginLeft: 'auto' }}>
+          <nav className="flex items-center text-sm font-medium justify-end" style={{ gap: '0.1rem', marginLeft: 'auto' }} data-testId="navbar-nav">
             <a
               href="/products"
               data-testId="navbar-products"

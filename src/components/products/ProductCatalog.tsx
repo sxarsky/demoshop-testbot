@@ -34,7 +34,7 @@ export default function ProductCatalog() {
     <div className="min-h-screen bg-white px-6 py-10" style={{ width: '100%', maxWidth: '64rem', margin: '0 auto', paddingLeft: 0 }}>
       {/* Deleted Banner */}
       {deletedBanner && (
-        <div className="max-w-xl mx-auto mb-6">
+        <div className="max-w-xl mx-auto mb-6" data-testId="delete-message-box">
           <div
             className="flex items-center justify-between text-red-800 shadow-sm text-sm"
             style={{
@@ -47,7 +47,7 @@ export default function ProductCatalog() {
               border: 'none',
             }}
           >
-            <span>Your product <b>{deletedBanner.name}</b> has been deleted!</span>
+            <span data-testId="delete-message">Your product <b>{deletedBanner.name}</b> has been deleted!</span>
             <button
               className="ml-4 text-red-500 hover:text-red-700 font-bold text-lg px-2"
               aria-label="Dismiss"
