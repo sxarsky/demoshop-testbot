@@ -24,11 +24,6 @@ export default function ProductCatalog() {
     }
   }, []);
 
-  // Helper to get session ID from cookie
-  function getSessionIdFromCookie() {
-    const match = document.cookie.match(/(?:^|; )demoshop_session=([^;]*)/);
-    return match ? decodeURIComponent(match[1]) : '';
-  }
 
   return (
     <div className="min-h-screen bg-white px-6 py-10" style={{ width: '100%', maxWidth: '64rem', margin: '0 auto', paddingLeft: 0 }}>

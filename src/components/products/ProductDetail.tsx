@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { productImageUrlMap } from '@/lib/product_utils'
 import { Button } from '@/components/ui/button'
 import { NavBar } from '../ui/navbar';
+import { getSessionIdFromCookie } from '../../lib/utils';
 
 export default function ProductDetail() {
   const { id } = useParams()
@@ -15,11 +16,7 @@ export default function ProductDetail() {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
-  // Utility to get session ID from cookie
-  function getSessionIdFromCookie() {
-    const match = document.cookie.match(/(?:^|; )demoshop_session_id=([^;]*)/);
-    return match ? match[1] : '';
-  }
+  // Use shared getSessionIdFromCookie from utils
 
   useEffect(() => {
     setLoading(true)
