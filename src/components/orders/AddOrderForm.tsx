@@ -214,11 +214,13 @@ const AddOrderForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
-                      {productsList.map(p => (
-                        <SelectItem key={p.product_id} value={p.product_id} style={{ paddingLeft: '0.5rem', borderBottom: '1px solid #e5e7eb' }} data-testId={`add-order-product-option-${p.product_id}`}>
-                          {p.name} (${p.price})
-                        </SelectItem>
-                      ))}
+                      {[...productsList]
+                        .sort((a, b) => a.name.localeCompare(b.name))
+                        .map(p => (
+                          <SelectItem key={p.product_id} value={p.product_id} style={{ paddingLeft: '0.5rem', borderBottom: '1px solid #e5e7eb' }} data-testId={`add-order-product-option-${p.product_id}`}>
+                            {p.name} (${p.price})
+                          </SelectItem>
+                        ))}
                     </SelectContent>
                   </Select>
                 </div>
