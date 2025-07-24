@@ -4,7 +4,7 @@ Dependencies
 import logging
 from typing import Annotated
 from fastapi import Depends
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.security import APIKeyHeader, HTTPBearer, HTTPAuthorizationCredentials
 from redis import Redis
 from api_insight.core.cache import pool, init_data, init_indexes
 logger = logging.getLogger(__name__)
@@ -14,20 +14,20 @@ def get_cache():
 
 CacheDep = Annotated[Redis, Depends(get_cache)]
 
-security = HTTPBearer(
-    scheme_name="Authorize with Bearer token",
+http_bearer = HTTPBearer(
+    scheme_name="Authorize using Bearer Token",
     description="""Provide the session_id in the box below.
-        To generate a session_id, you can use 
+        To generate a session_id, please use 
         <b> https://demoshop.skyramp.dev/api/v1/generate </b>
         endpoint.
         """,
 )
 
-def get_session_id(token: Annotated[HTTPAuthorizationCredentials, Depends(security)]):
+def get_session_id(bearer_token: Annotated[HTTPAuthorizationCredentials, Depends(http_bearer)]):
     """Get session ID"""
-    if token and token.credentials != "":
-        logger.debug("using bearer token: %s", token.credentials)
-        return token.credentials
+    if bearer_token and bearer_token.credentials != "":
+        logger.debug("using bearer token: %s", bearer_token.credentials)
+        return bearer_token.credentials
     return None
 
 GetSessionIdDep = Annotated[str | None, Depends(get_session_id)]

@@ -2,10 +2,12 @@
 Main FastAPI application module.
 Handles application initialization, middleware setup, and route configuration.
 """
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.exceptions import RequestValidationError
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.datastructures import MutableHeaders
 from mangum import Mangum
 from api_insight.core.config import get_settings
 from api_insight.routers.product import router as products_router
@@ -48,6 +50,31 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+class APIKeyToBearerMiddleware(BaseHTTPMiddleware):
+    """
+    Middleware to convert API Key header to Bearer token.
+    This allows the API to accept requests with an API Key in the header
+    and treat it as a Bearer token for authentication.
+    """
+    async def dispatch(self, request: Request, call_next):
+        # Check if the API key header exists
+        api_key = request.headers.get("x-session-id")
+
+        if api_key:
+            # If an API key is present, construct the Bearer token
+            bearer_token_value = f"Bearer {api_key}"
+
+            # Update the Authorization header with the Bearer token
+            # request.headers is immutable, so we create a MutableHeaders
+            new_headers = MutableHeaders(request._headers)
+            new_headers["Authorization"] = bearer_token_value
+            request._headers = new_headers
+            request.scope.update(headers=request.headers.raw)
+
+        response = await call_next(request)
+        return response
+
+app.add_middleware(APIKeyToBearerMiddleware)
 app.add_exception_handler(RequestValidationError, custom_request_validation_exception_handler)
 app.add_exception_handler(ResourceNotFoundException, resource_not_found_exception_handler)
 
