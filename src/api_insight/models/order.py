@@ -4,7 +4,7 @@ Order models for the API.
 from datetime import datetime
 from enum import Enum
 from typing import List
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, EmailStr
 
 class OrderStatus(str, Enum):
     """Order status enumeration."""
@@ -37,7 +37,7 @@ class OrderItemRead(OrderItemBase):
 
 class OrderBase(BaseModel):
     """Parent Model for orders with common fields."""
-    customer_email: str = Field(max_length=255, pattern=r"(^[a-zA-Z]+[@a-zA-Z0-9-]*[\.a-zA-Z0-9-.]*$)")
+    customer_email: EmailStr = Field(max_length=255)
     status: OrderStatus = Field(default=OrderStatus.PENDING)
     total_amount: float = Field(default=0.0)
 
@@ -51,7 +51,7 @@ class Order(OrderBase):
 
 class OrderCreate(BaseModel):
     """Model for creating new orders in DB."""
-    customer_email: str = Field(max_length=255, pattern=r"(^[a-zA-Z]+[@a-zA-Z0-9-]*[\.a-zA-Z0-9-.]*$)")
+    customer_email: EmailStr = Field(max_length=255)
     items: List[OrderItemCreate]
     model_config = {
         "json_schema_extra": {
