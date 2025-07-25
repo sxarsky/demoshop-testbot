@@ -27,7 +27,7 @@ class Settings(BaseSettings):
     API_VERSION: str
     API_HOST: str = "localhost"
     API_PORT: int = 8000
-    SKYRAMP_ENVIRONMENT: Literal["local", "dev", "stg", "prd"] = "local"
+    SKYRAMP_ENVIRONMENT: Literal["local", "dev", "stg", "sbx", "prd"] = "local"
     REDIS_HOST: str
     AWS_DEFAULT_REGION: str
     REDIS_PORT: int
