@@ -18,7 +18,7 @@ export default function OrderDetail() {
     if (!order_id) return;
     setLoading(true);
     const sessionId = getSessionIdFromCookie();
-    fetch(`https://dev.demoshop.skyramp.dev/api/v1/orders/${order_id}`, {
+    fetch(`https://sbx.demoshop.skyramp.dev/api/v1/orders/${order_id}`, {
       headers: { 'Authorization': `Bearer ${sessionId}` }
     })
       .then((res) => {
@@ -32,7 +32,7 @@ export default function OrderDetail() {
         if (data.items && data.items.length > 0) {
           Promise.all(
             data.items.map((item: any) => {
-              return fetch(`https://dev.demoshop.skyramp.dev/api/v1/products/${item.product_id}`, {
+              return fetch(`https://sbx.demoshop.skyramp.dev/api/v1/products/${item.product_id}`, {
                 headers: { 'Authorization': `Bearer ${sessionId}` }
               })
                 .then((res) => res.ok ? res.json() : null)
@@ -52,7 +52,7 @@ export default function OrderDetail() {
     setCancelling(true);
     const sessionId = getSessionIdFromCookie();
     try {
-      const res = await fetch(`https://dev.demoshop.skyramp.dev/api/v1/orders/${order_id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${sessionId}` } });
+      const res = await fetch(`https://sbx.demoshop.skyramp.dev/api/v1/orders/${order_id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${sessionId}` } });
       if (!res.ok) throw new Error('Failed to cancel order');
       // Show banner on /orders
       localStorage.setItem(

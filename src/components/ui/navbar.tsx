@@ -8,7 +8,7 @@ async function getOrCreateSessionId() {
   if (match) return match[1];
   // Generate new session ID using API
   try {
-    const res = await fetch('https://dev.demoshop.skyramp.dev/api/v1/generate', {
+    const res = await fetch('https://sbx.demoshop.skyramp.dev/api/v1/generate', {
       headers: { 'Authorization': `Bearer ${getSessionIdFromCookie()}` }
     });
     if (!res.ok) throw new Error('Failed to generate session ID');
@@ -369,7 +369,7 @@ export function NavBar({ active, forceUnderlineProducts, hideLinks }: { active: 
                 e.preventDefault();
                 try {
                   const sessionId = typeof document !== 'undefined' ? (document.cookie.match(/(?:^|; )demoshop_session_id=([^;]*)/)?.[1] || '') : '';
-                  await fetch('https://dev.demoshop.skyramp.dev/api/v1/reset', {
+                  await fetch('https://sbx.demoshop.skyramp.dev/api/v1/reset', {
                     method: 'POST',
                     headers: { 'Authorization': `Bearer ${sessionId}` }
                   });

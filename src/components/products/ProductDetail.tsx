@@ -21,7 +21,7 @@ export default function ProductDetail() {
   useEffect(() => {
     setLoading(true)
     const sessionId = getSessionIdFromCookie();
-    fetch(`https://dev.demoshop.skyramp.dev/api/v1/products/${id}`, {
+    fetch(`https://sbx.demoshop.skyramp.dev/api/v1/products/${id}`, {
       headers: { 'Authorization': `Bearer ${sessionId}` }
     })
       .then(res => {
@@ -57,7 +57,7 @@ export default function ProductDetail() {
         image_url: formState.image_url || '',
       };
       const { product_id, created_at, updated_at, ...reducedPayload } = payload; // Exclude unwanted fields
-      const res = await fetch(`https://dev.demoshop.skyramp.dev/api/v1/products/${product.product_id}`, {
+      const res = await fetch(`https://sbx.demoshop.skyramp.dev/api/v1/products/${product.product_id}`, {
         method: 'PUT',
         headers: { 
           'Content-Type': 'application/json',
@@ -79,7 +79,7 @@ export default function ProductDetail() {
     setDeleting(true);
     const sessionId = getSessionIdFromCookie();
     try {
-      await fetch(`https://dev.demoshop.skyramp.dev/api/v1/products/${product.product_id}`, { 
+      await fetch(`https://sbx.demoshop.skyramp.dev/api/v1/products/${product.product_id}`, { 
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${sessionId}` }
       });

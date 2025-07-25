@@ -22,7 +22,7 @@ export default function ProductList() {
   const fetchProducts = () => {
     setLoading(true)
     const sessionId = getSessionIdFromCookie();
-    fetch('https://dev.demoshop.skyramp.dev/api/v1/products?limit=50', {
+    fetch('https://sbx.demoshop.skyramp.dev/api/v1/products?limit=50', {
       headers: { 'Authorization': `Bearer ${sessionId}` }
     })
       .then(res => {

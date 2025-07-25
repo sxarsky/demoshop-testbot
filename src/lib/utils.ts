@@ -46,7 +46,7 @@ export async function ensureSessionId() {
     }
     // Try to generate session ID using API
     try {
-      const res = await fetch('https://dev.demoshop.skyramp.dev/api/v1/generate', {
+      const res = await fetch('https://sbx.demoshop.skyramp.dev/api/v1/generate', {
         headers: { 'Authorization': `Bearer ${getSessionIdFromCookie()}` }
       });
       await sleep(500);
