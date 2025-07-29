@@ -66,6 +66,7 @@ export default function ProductDetail() {
         body: JSON.stringify(reducedPayload),
       });
       if (!res.ok) throw new Error('Failed to update product');
+      setProduct({ ...product, ...formState });
       setEditMode(false);
     } catch (err) {
       alert('Failed to save product.');

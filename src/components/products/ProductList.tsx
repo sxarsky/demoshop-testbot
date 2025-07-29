@@ -31,7 +31,7 @@ export default function ProductList() {
       })
       .then((data: Product[]) => {
         const sorted = (data || []).sort(
-          (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          (a, b) => a.product_id - b.product_id
         )
         setProducts(sorted)
       })
