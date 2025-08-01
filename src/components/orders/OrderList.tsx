@@ -18,7 +18,7 @@ export default function OrderList() {
     const fetchOrders = () => {
       setLoading(true);
       const sessionId = getSessionIdFromCookie();
-      fetch('https://sbx.demoshop.skyramp.dev/api/v1/orders?limit=50', {
+      fetch('https://dev.demoshop.skyramp.dev/api/v1/orders?limit=50', {
         headers: { 'Authorization': `Bearer ${sessionId}` }
       })
         .then(res => {
