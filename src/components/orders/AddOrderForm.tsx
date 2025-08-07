@@ -217,7 +217,7 @@ const AddOrderForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                       {[...productsList]
                         .sort((a, b) => a.name.localeCompare(b.name))
                         .map(p => (
-                          <SelectItem key={p.product_id} value={p.product_id} style={{ paddingLeft: '0.5rem', borderBottom: '1px solid #e5e7eb' }} data-testId={`add-order-product-option-${p.product_id}`}>
+                          <SelectItem key={p.product_id} value={p.product_id} style={{ paddingLeft: '0.5rem', borderBottom: '1px solid #e5e7eb' }} data-testId={`add-order-product-option-${p.name}`}>
                             {p.name} (${p.price})
                           </SelectItem>
                         ))}
@@ -259,12 +259,12 @@ const AddOrderForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                     {order.items.map((op, idx) => {
                       const prod = productsList.find(p => String(p.product_id).trim() === String(op.product_id).trim());
                       return (
-                        <div key={op.product_id + idx} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem', fontSize: '0.98rem', background: '#fff', borderRadius: '0.375rem', padding: '0.25rem 0.5rem' }} data-testId={`add-order-product-row-${op.product_id}`}>
-                          <span style={{ flex: 2 }} data-testId={`add-order-product-name-${op.product_id}`}>{prod ? prod.name : op.product_id}</span>
-                          <span style={{ flex: 1, textAlign: 'center' }} data-testId={`add-order-product-quantity-${op.product_id}`}>x{op.quantity}</span>
-                          <span style={{ flex: 1, textAlign: 'center', color: '#374151' }} data-testId={`add-order-product-unitprice-${op.product_id}`}>{prod ? `$${prod.price}` : '-'}</span>
-                          <span style={{ flex: 1, textAlign: 'center', color: '#16a34a', fontWeight: 500 }} data-testId={`add-order-product-total-${op.product_id}`}>{prod ? `$${(prod.price * op.quantity).toFixed(2)}` : '-'}</span>
-                          <Button type="button" variant="link" style={{ color: '#dc2626', marginLeft: 'auto', flex: 0.5, fontWeight: 500 }} onClick={() => handleRemoveProduct(idx)} data-testId={`add-order-product-delete-btn-${op.product_id}`}>Delete</Button>
+                        <div key={op.product_id + idx} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem', fontSize: '0.98rem', background: '#fff', borderRadius: '0.375rem', padding: '0.25rem 0.5rem' }} data-testId={`add-order-product-row-${prod?.name || op.product_id}`}>
+                          <span style={{ flex: 2 }} data-testId={`add-order-product-name-${prod?.name || op.product_id}`}>{prod ? prod.name : op.product_id}</span>
+                          <span style={{ flex: 1, textAlign: 'center' }} data-testId={`add-order-product-quantity-${prod?.name || op.product_id}`}>x{op.quantity}</span>
+                          <span style={{ flex: 1, textAlign: 'center', color: '#374151' }} data-testId={`add-order-product-unitprice-${prod?.name || op.product_id}`}>{prod ? `$${prod.price}` : '-'}</span>
+                          <span style={{ flex: 1, textAlign: 'center', color: '#16a34a', fontWeight: 500 }} data-testId={`add-order-product-total-${prod?.name || op.product_id}`}>{prod ? `$${(prod.price * op.quantity).toFixed(2)}` : '-'}</span>
+                          <Button type="button" variant="link" style={{ color: '#dc2626', marginLeft: 'auto', flex: 0.5, fontWeight: 500 }} onClick={() => handleRemoveProduct(idx)} data-testId={`add-order-product-delete-btn-${prod?.name || op.product_id}`}>Delete</Button>
                         </div>
                       );
                     })}
@@ -272,7 +272,7 @@ const AddOrderForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 )}
               </div>
             </div>
-            <Button type="submit" className="w-full text-black mt-2" style={{ background: '#f3f4f6', color: '#111', border: '1.5px solid transparent', outline: 'none', transition: 'background 0.2s, border-color 0.2s, outline 0.2s', width: '100%', marginTop: '0.5rem' }} onMouseOver={e => { e.currentTarget.style.background = '#d1d5db'; e.currentTarget.style.border = '1.5px solid #000'; }} onMouseOut={e => { e.currentTarget.style.background = '#f3f4f6'; e.currentTarget.style.border = '1.5px solid transparent'; }} data-testId="add-order-submit-btn">Add Order</Button>
+            <Button type="submit" className="w-full text-black mt-2" style={{ background: '#f3f4f6', color: '#111', border: '1.5px solid transparent', outline: 'none', transition: 'background 0.2s, border-color 0.2s, outline 0.2s', width: '100%', marginTop: '0.5rem' }} onMouseOver={e => { e.currentTarget.style.background = '#d1d5db'; e.currentTarget.style.border = '1.5px solid #000'; }} onMouseOut={e => { e.currentTarget.style.background = '#f3f4f6'; e.currentTarget.style.border = '1.5px solid transparent'; }}>Add Order</Button>
           </div>
         </form>
       </div>

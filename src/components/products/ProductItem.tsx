@@ -62,11 +62,11 @@ export default function ProductItem({ product, horizontal = false, minHeight, 'd
         {/* Product Info */}
         <div
           className="product-name-container"
-          data-testId={`product-id-${product.name.replace(/\s+/g, '-')}-info`}
+          data-testId={`product-${product.name.replace(/\s+/g, '-')}-info`}
         >
-          <span data-testId={`product-id-${product.name.replace(/\s+/g, '-')}`} style={{ fontSize: '1.1rem', fontWeight: 500, color: '#1e293b', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{product.name}</span>
+          <span data-testId={`product-${product.name.replace(/\s+/g, '-')}`} style={{ fontSize: '1.1rem', fontWeight: 500, color: '#1e293b', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{product.name}</span>
           <div className="product-price-container">
-            <span data-testId={`product-id-${product.name.replace(/\s+/g, '-')}-price`} style={{ fontSize: '1rem', color: '#0f766e', fontWeight: 500, margin: 0, marginTop: '0.25rem' }}>${product.price.toFixed(2)}</span>
+            <span data-testId={`product-${product.name.replace(/\s+/g, '-')}-price`} style={{ fontSize: '1rem', color: '#0f766e', fontWeight: 500, margin: 0, marginTop: '0.25rem' }}>${product.price.toFixed(2)}</span>
           </div>
         </div>
         <Button
@@ -115,11 +115,11 @@ export default function ProductItem({ product, horizontal = false, minHeight, 'd
       {/* Product Info */}
       <div
         style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.15rem', width: '100%', marginTop: '0.5rem' }}
-        data-testId={`product-id-${product.name.replace(/\s+/g, '-')}-info`}
+        data-testId={`product-${product.name.replace(/\s+/g, '-')}-info`}
       >
         <div className="product-name-container">
           <h2
-            data-testId={`product-id-${product.name.replace(/\s+/g, '-')}`}
+            data-testId={`product-${product.name.replace(/\s+/g, '-')}`}
             style={{
               fontSize: '1.1rem',
               fontWeight: 500,
@@ -138,7 +138,7 @@ export default function ProductItem({ product, horizontal = false, minHeight, 'd
           </h2>
         </div>
         <div className="product-price-container">
-          <p data-testId={`product-id-${product.name.replace(/\s+/g, '-')}-price`} style={{ fontSize: '1.05rem', color: '#0f766e', fontWeight: 500, margin: 0, textAlign: 'center' }}>${product.price.toFixed(2)}</p>
+          <p data-testId={`product-${product.name.replace(/\s+/g, '-')}-price`} style={{ fontSize: '1.05rem', color: '#0f766e', fontWeight: 500, margin: 0, textAlign: 'center' }}>${product.price.toFixed(2)}</p>
         </div>
       </div>
       {/* View Details */}
@@ -149,7 +149,7 @@ export default function ProductItem({ product, horizontal = false, minHeight, 'd
           onMouseOver={e => { e.currentTarget.style.background = '#e5e7eb'; }}
           onMouseOut={e => { e.currentTarget.style.background = '#f3f4f6'; }}
           onClick={() => navigate(`/products/${product.product_id}`)}
-          data-testId={`product-id-${product.name.replace(/\s+/g, '-')}-view-details`}
+          data-testId={`product-${product.name.replace(/\s+/g, '-')}-view-details`}
         >
           View Details
         </Button>

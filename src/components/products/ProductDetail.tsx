@@ -272,7 +272,6 @@ export default function ProductDetail() {
             className="w-48"
             onClick={handleSave}
             disabled={saving}
-            data-testId="product-detail-save-btn"
           >
             {saving ? 'Saving...' : 'Save Product'}
           </Button>
@@ -297,7 +296,6 @@ export default function ProductDetail() {
               e.currentTarget.style.borderColor = '#111'; // Black border
               e.currentTarget.style.color = '#fff'; // White text
             }}
-            data-testId="product-detail-edit-btn"
           >
             Edit Product
           </Button>
@@ -321,7 +319,6 @@ export default function ProductDetail() {
             e.currentTarget.style.background = '#dc2626'; // Default red
             e.currentTarget.style.borderColor = 'transparent';
           }}
-          data-testId="product-detail-delete-btn"
         >
           {deleting ? 'Deleting...' : 'Delete Product'}
         </Button>
@@ -345,7 +342,6 @@ export default function ProductDetail() {
             e.currentTarget.style.borderColor = 'transparent'; 
             e.currentTarget.style.color = '#111'; // Keep text black
           }}
-          data-testId="product-detail-back-btn"
         >
           Back
         </Button>

@@ -117,9 +117,9 @@ export default function OrderDetail() {
             const quantity = item?.quantity ?? 1;
             return (
               <div key={product.product_id || idx} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <div style={{ minWidth: '2.5rem', textAlign: 'center', fontWeight: 600, color: '#374151', fontSize: '1.1rem', flexShrink: 0 }} data-testId={`order-detail-product-qty-${product.product_id || idx}`}>x{quantity}</div>
+                <div style={{ minWidth: '2.5rem', textAlign: 'center', fontWeight: 600, color: '#374151', fontSize: '1.1rem', flexShrink: 0 }} data-testId={`order-detail-product-qty-${product.name || idx}`}>x{quantity}</div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <ProductItem product={product} horizontal={true} data-testId={`order-detail-product-${product.product_id || idx}`} />
+                  <ProductItem product={product} horizontal={true} data-testId={`order-detail-product-${product.name || idx}`} />
                 </div>
               </div>
             );
@@ -148,7 +148,6 @@ export default function OrderDetail() {
                 e.currentTarget.style.background = '#dc2626';
                 e.currentTarget.style.borderColor = 'transparent';
               }}
-              data-testId="order-detail-cancel-btn"
             >
               {cancelling ? 'Cancelling...' : 'Cancel Order'}
             </Button>
@@ -173,7 +172,6 @@ export default function OrderDetail() {
               e.currentTarget.style.borderColor = 'transparent';
               e.currentTarget.style.color = '#111';
             }}
-            data-testId="order-detail-back-btn"
           >
             Back
           </Button>

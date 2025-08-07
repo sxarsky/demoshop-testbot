@@ -50,13 +50,14 @@ export default function OrderList() {
     <div
       className="w-full max-w-3xl mx-auto flex flex-col"
       style={{ gap: '1rem', display: 'flex', flexDirection: 'column', maxWidth: '64rem', width: '100%', margin: '0 auto' }}
+      data-testId="orders-list-container"
     >
       {sortedOrders.map((order) => (
         <OrderItem
           key={order.order_id}
           order={order}
           gapOverride={"16rem"}
-          data-testId={`order-id-${order.customer_email} - ${order.items.length} items`}
+          dataTestId={`order-${order.customer_email} - ${order.items.length} items`}
         />
       ))}
     </div>

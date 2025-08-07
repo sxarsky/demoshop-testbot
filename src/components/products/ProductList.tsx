@@ -107,7 +107,7 @@ export default function ProductList() {
             alignItems: 'stretch',
           }}
         >
-          <ProductItem product={product} minHeight={400} data-testId={`product-id-${product.name}`} />
+          <ProductItem product={product} minHeight={400} data-testId={`product-name-${product.name}`} />
         </div>
       ))}
     </div>

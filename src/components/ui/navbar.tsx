@@ -261,10 +261,11 @@ export function NavBar({ active, forceUnderlineProducts, hideLinks }: { active: 
         </div>
         {/* Nav Links */}
         {!hideLinks && (
-          <nav className="flex items-center text-sm font-medium justify-end" style={{ gap: '0.1rem', marginLeft: 'auto' }} data-testId="navbar-nav">
+          <nav className="flex items-center text-sm font-medium justify-end" style={{ gap: '0.1rem', marginLeft: 'auto' }} data-testId="navbar-nav" role="navigation" aria-label="Main navigation">
             <a
               href="/products"
               data-testId="navbar-products"
+              aria-label="Navigate to Products page"
               style={{
                 color: '#60a5fa',
                 textDecoration: (active === 'products' || forceUnderlineProducts) ? 'underline' : productsHover ? 'underline' : 'none',
@@ -284,6 +285,7 @@ export function NavBar({ active, forceUnderlineProducts, hideLinks }: { active: 
             <a
               href="/orders"
               data-testId="navbar-orders"
+              aria-label="Navigate to Orders page"
               style={{
                 color: '#60a5fa',
                 textDecoration: active === 'orders' && !forceUnderlineProducts ? 'underline' : ordersHover ? 'underline' : 'none', // Underline only on OrderCatalog or hover
