@@ -45,6 +45,15 @@ jobs:
       - name: Validate API response
         run: curl -I -X GET http://localhost:8000
 
+      - name: Run Skyramp generated tests
+        shell: bash
+        working-directory: ${{ env.GITHUB_WORKSPACE }}
+        run: |
+          python3 -m pip install skyramp
+          python3 -m pip install pytest
+          export SKYRAMP_TEST_TOKEN=test-bearer-token
+          pytest -vvv $GITHUB_WORKSPACE/tests/python/products_*.py
+
       - name: Stop services
         run: docker compose down
       
