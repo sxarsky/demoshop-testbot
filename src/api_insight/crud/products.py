@@ -8,8 +8,10 @@ from redis import Redis
 from redis.commands.json.path import Path
 from redis.commands.search.query import Query
 from api_insight.models.product import Product, ProductCreate, ProductUpdate
+from api_insight.core.config import get_settings
 
 DEFAULT_KEY = "demoshop_default"
+settings = get_settings()
 
 def get_product(cache, session_id: str, product_id: int) -> Product | None:
     """Get a product by ID."""
@@ -25,6 +27,7 @@ def create_product(cache: Redis, session_id: str, product_create: ProductCreate)
     product_valid = Product.model_validate(product)
     product_encoded = jsonable_encoder(product_valid.model_dump())
     cache.json().set(f'{key}:products:{product_id}', Path.root_path(), product_encoded)
+    cache.expire(f'{key}:products:{product_id}', settings.KEY_TTL_SECONDS)
     return cache.json().get(f'{key}:products:{product_id}')
 
 def get_products(cache: Redis, session_id: str, limit: int, offset: int, order: str, order_by: str) -> list[Product]:

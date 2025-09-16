@@ -6,7 +6,9 @@ from redis.commands.json.path import Path
 from redis.commands.search.query import Query, NumericFilter
 from api_insight.models.review import ReviewCreate, Review
 from api_insight.core.cache import get_or_create_reviews_index
+from api_insight.core.config import get_settings
 
+settings = get_settings()
 DEFAULT_KEY = "demoshop_default"
 
 def get_reviews(product_id: int, cache: Redis, session_id: str, limit: int, offset: int, order: str, order_by: str):
@@ -41,6 +43,7 @@ def create_review(review: ReviewCreate, cache: Redis, session_id: str, product_i
                        review_id=review_id)
     review_encoded = jsonable_encoder(db_review.model_dump())
     cache.json().set(f'{key}:reviews:{review_id}', Path.root_path(), review_encoded)
+    cache.expire(f'{key}:reviews:{review_id}', settings.KEY_TTL_SECONDS)
     return db_review
 
 def get_review(cache, session_id: str, product_id: int) -> Review | None:

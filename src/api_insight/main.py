@@ -2,6 +2,7 @@
 Main FastAPI application module.
 Handles application initialization, middleware setup, and route configuration.
 """
+import ddtrace.auto
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles

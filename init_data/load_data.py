@@ -1,3 +1,5 @@
+"""Utility to add init data to redis db and optionally flush the db"""
+import argparse
 import json
 import ssl
 import os
@@ -32,6 +34,14 @@ pool = redis.ConnectionPool(
         **kwargs)
 
 r = redis.Redis(connection_pool=pool)
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--flushall", help="flush Redis database", action="store_true")
+args = parser.parse_args()
+
+if args.flushall:
+    print("WARNING: Flushing db before adding init data")
+    r.flushall()
 
 with open('app_data.json', 'r', encoding='utf-8') as file:
     data = json.load(file)

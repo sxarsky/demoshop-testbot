@@ -43,20 +43,13 @@ def init_data(cache: Redis, session_id: str):
             logger.debug('skip init data')
             continue
         pattern = f"{default_data}:{collection}:*"
-        default_keys = cache.keys(pattern)
 
         with cache.pipeline() as pipe:
-            for k in default_keys:
-                pipe.json().get(k)
-            default_values = pipe.execute()
-
-        with cache.pipeline() as pipe:
-            for k, v in zip(default_keys, default_values):
-                if v is not None:
-                    resource_id = k.split(":")[-1]
-                    new_key = f"{session_id}:{collection}:{resource_id}"
-                    pipe.json().set(new_key, '$', v)
-                    pipe.expire(new_key, settings.KEY_TTL_SECONDS)
+            for key in cache.scan_iter(match=pattern, count=1000):
+                resource_id = key.split(":")[-1]
+                new_key = f"{session_id}:{collection}:{resource_id}"
+                pipe.copy(key, new_key)
+                pipe.expire(new_key, settings.KEY_TTL_SECONDS)
             pipe.execute()
 
 def get_or_create_products_index(cache: Redis, key):

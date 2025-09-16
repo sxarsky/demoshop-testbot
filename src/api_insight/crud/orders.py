@@ -9,7 +9,9 @@ from redis.commands.search.query import Query, NumericFilter
 from api_insight.models.order import Order, OrderStatus, OrderItem, OrderCreate
 from api_insight.crud import products
 from api_insight.core.cache import get_or_create_orders_index, get_or_create_order_items_index
+from api_insight.core.config import get_settings
 
+settings = get_settings()
 DEFAULT_KEY = "demoshop_default"
 def get_orders(cache: Redis, session_id: str, limit: int, offset: int, order: str, order_by: str) -> list[Order]:
     """Get all orders."""
@@ -84,6 +86,7 @@ def create_order(cache: Redis, session_id: str, order: OrderCreate) -> Order:
         )
         order_item_encoded = jsonable_encoder(order_item.model_dump())
         cache.json().set(f'{key}:orderitems:{order_item_id}', Path.root_path(), order_item_encoded)
+        cache.expire(f'{key}:orderitems:{order_item_id}', settings.KEY_TTL_SECONDS)
         # Update total amount
         total_amount += product["price"] * item.quantity
 
@@ -95,6 +98,7 @@ def create_order(cache: Redis, session_id: str, order: OrderCreate) -> Order:
     # Update order total
     order_encoded = jsonable_encoder(db_order.model_dump())
     cache.json().set(f'{key}:orders:{order_id}', Path.root_path(), order_encoded)
+    cache.expire(f'{key}:orders:{order_id}', settings.KEY_TTL_SECONDS)
     return db_order
 
 def cancel_order(cache: Redis, session_id: str, order_id: int) -> None:

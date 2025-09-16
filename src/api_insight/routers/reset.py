@@ -15,7 +15,9 @@ router = APIRouter(
 async def reset(session_id: GetSessionIdDep, cache: CacheDep):
     """Reset API to reset or clean DB state for given session id"""
     try:
-        for key in cache.scan_iter(match=f'{session_id}:*:*'):
-            cache.json().delete(key)
+        with cache.pipeline() as pipe:
+            for key in cache.scan_iter(match=f'{session_id}:*:*', count=1000):
+                pipe.json().delete(key)
+            pipe.execute()
     except Exception as exc:
         raise ResourceNotFoundException(status_code=400, detail="Session ID not found") from exc

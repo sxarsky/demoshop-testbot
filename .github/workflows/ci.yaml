@@ -53,6 +53,7 @@ jobs:
           python3 -m pip install pytest
           export SKYRAMP_TEST_TOKEN=test-bearer-token
           pytest -vvv $GITHUB_WORKSPACE/tests/python/products_*.py
+          pytest -vvv $GITHUB_WORKSPACE/tests/python/reset_contract_test.py
 
       - name: Stop services
         run: docker compose down
