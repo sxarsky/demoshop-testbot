@@ -1,5 +1,6 @@
 """Reset API to reset or clean the db for given session id"""
 from fastapi import APIRouter, status
+from api_insight.core.cache import COLLECTIONS
 from api_insight.deps import CacheDep, EnsureSessionDep, GetSessionIdDep
 from api_insight.exceptions import ResourceNotFoundException
 
@@ -18,6 +19,8 @@ async def reset(session_id: GetSessionIdDep, cache: CacheDep):
         with cache.pipeline() as pipe:
             for key in cache.scan_iter(match=f'{session_id}:*:*', count=1000):
                 pipe.json().delete(key)
+            for collection in COLLECTIONS:
+                pipe.ft(f"idx:{session_id}:{collection}").dropindex(delete_documents=False)
             pipe.execute()
     except Exception as exc:
         raise ResourceNotFoundException(status_code=400, detail="Session ID not found") from exc

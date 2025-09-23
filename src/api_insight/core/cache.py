@@ -11,6 +11,8 @@ from api_insight.core.config import get_settings
 logger = logging.getLogger(__name__)
 settings = get_settings()
 
+COLLECTIONS = ["products", "reviews", "orders", "orderitems"]
+
 def create_pool():
     """Create redis connection pool"""
     kwargs = {}
@@ -34,23 +36,14 @@ def create_pool():
 
 def init_data(cache: Redis, session_id: str):
     """init data"""
-    collections = ["products", "reviews", "orders", "orderitems"]
     default_data = "demoshop_default"
 
-    for collection in collections:
-        resource_keys_exists = cache.exists(f"{session_id}:{collection}:0")
-        if resource_keys_exists:
-            logger.debug('skip init data')
-            continue
-        pattern = f"{default_data}:{collection}:*"
-
-        with cache.pipeline() as pipe:
-            for key in cache.scan_iter(match=pattern, count=1000):
-                resource_id = key.split(":")[-1]
-                new_key = f"{session_id}:{collection}:{resource_id}"
-                pipe.copy(key, new_key)
-                pipe.expire(new_key, settings.KEY_TTL_SECONDS)
-            pipe.execute()
+    with cache.pipeline() as pipe:
+        for key in cache.scan_iter(match=f'{default_data}:*:*', count=1000):
+            new_key = str.replace(key, default_data, session_id, 1)
+            pipe.copy(key, new_key)
+            pipe.expire(new_key, settings.KEY_TTL_SECONDS)
+        pipe.execute()
 
 def get_or_create_products_index(cache: Redis, key):
     """Get or create product index"""
