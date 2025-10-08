@@ -1,0 +1,78 @@
+@baseUrl = http://localhost:8000
+@apiVersion = v1
+@apiKey = API_KEY
+
+### Create a new product
+# @name product_create
+POST {{baseUrl}}/api/{{apiVersion}}/products
+Content-Type: application/json
+X-API-Key: {{apiKey}}
+
+{
+    "name": "Sample Product",
+    "title": "Sample Product Title",
+    "price": 19.99,
+    "description": "A sample product for testing",
+    "image_url": "https://example.com/image.png",
+    "category": "Sample Category",
+    "in_stock": true
+}
+
+### Get the product ID
+@product_id = {{product_create.response.body.id}}
+
+### Get all products
+GET {{baseUrl}}/api/{{apiVersion}}/products
+X-API-Key: {{apiKey}}
+
+### Get a product by ID
+GET {{baseUrl}}/api/{{apiVersion}}/products/{{product_id}}
+X-API-Key: {{apiKey}}
+
+### Update a product
+PUT {{baseUrl}}/api/{{apiVersion}}/products/{{product_id}}
+Content-Type: application/json
+X-API-Key: {{apiKey}}
+
+{
+    "price": 24.99,
+    "in_stock": false
+}
+
+### Delete a product
+DELETE {{baseUrl}}/api/{{apiVersion}}/products/{{product_id}}
+X-API-Key: {{apiKey}}
+
+### Create a new order
+
+POST {{baseUrl}}/api/{{apiVersion}}/orders
+Content-Type: application/json
+X-API-Key: {{apiKey}}
+
+{
+    "product_id": 1,
+    "quantity": 2,
+    "total_price": 39.98
+}
+
+### Get all orders
+GET {{baseUrl}}/api/{{apiVersion}}/orders
+X-API-Key: {{apiKey}}
+
+### Get an order by ID
+GET {{baseUrl}}/api/{{apiVersion}}/orders/{{order_id}}
+X-API-Key: {{apiKey}}
+
+### Update an order
+PUT {{baseUrl}}/api/{{apiVersion}}/orders/{{order_id}}
+Content-Type: application/json
+X-API-Key: {{apiKey}}
+
+{
+    "quantity": 3,
+    "total_price": 59.97
+}
+
+### Delete an order
+DELETE {{baseUrl}}/api/{{apiVersion}}/orders/{{order_id}}
+X-API-Key: {{apiKey}} 

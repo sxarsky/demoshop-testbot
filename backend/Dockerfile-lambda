@@ -1,0 +1,31 @@
+ARG PYTHON_VERSION=3.13
+FROM public.ecr.aws/lambda/python:${PYTHON_VERSION}
+
+WORKDIR ${LAMBDA_TASK_ROOT}/api_insight
+
+# Copy Datadog tracing library
+COPY --from=public.ecr.aws/datadog/lambda-extension:latest /opt/. /opt/
+
+# Copy function code
+COPY ./src/api_insight ${LAMBDA_TASK_ROOT}/api_insight
+
+# Prevents Python from writing pyc files.
+ENV PYTHONDONTWRITEBYTECODE=1
+
+# Keeps Python from buffering stdout and stderr to avoid situations where
+# the application crashes without emitting any logs due to buffering.
+ENV PYTHONUNBUFFERED=1
+
+# Set the python path to the application's code
+ENV PYTHONPATH=${LAMBDA_TASK_ROOT}/api_insight
+
+# Install the function's dependencies using file requirements.txt
+# from your project folder.
+COPY requirements.txt .
+
+RUN pip3 install -r requirements.txt -t "${LAMBDA_TASK_ROOT}" --no-cache-dir
+
+# Set the CMD to your handler (could also be done as a parameter override outside of the Dockerfile)
+# Datadog handler enabled APM and calls your original handler
+ENV DD_LAMBDA_HANDLER="main.handler"
+CMD ["datadog_lambda.handler.handler"]

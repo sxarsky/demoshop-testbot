@@ -1,0 +1,21 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "FastAPI: Dev Server",
+            "type": "python",
+            "request": "launch",
+            "module": "fastapi",
+            "args": [
+                "dev",
+                "--host",
+                "0.0.0.0",
+                "--port",
+                "8000",
+                "src/main.py"
+            ],
+            "jinja": true,
+            "console": "integratedTerminal"
+        }
+    ]
+} 

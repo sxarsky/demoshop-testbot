@@ -1,0 +1,106 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  SAM Template for api-insight FastAPI
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 10
+
+Resources:
+  ApiInsightFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Image
+      Events:
+        Docs:
+          Type: HttpApi
+          Properties:
+            Path: /api
+            Method: GET
+        Openapi:
+          Type: HttpApi
+          Properties: 
+            Path: /openapi.json
+            Method: GET
+        CreateAProduct:
+          Type: HttpApi
+          Properties:
+            Path: /api/v1/products
+            Method: POST
+        GetAllProducts:
+          Type: HttpApi
+          Properties:
+            Path: /api/v1/products
+            Method: GET
+        GetAProduct:
+          Type: HttpApi
+          Properties:
+            Path: /api/v1/products/{product_id}
+            Method: GET
+        DeleteAProduct:
+          Type: HttpApi
+          Properties:
+            Path: /api/v1/products/{product_id}
+            Method: DELETE
+        UpdateAProduct:
+          Type: HttpApi
+          Properties:
+            Path: /api/v1/products/{product_id}
+            Method: PUT
+        CreateAnOrder:
+          Type: HttpApi
+          Properties:
+            Path: /api/v1/orders
+            Method: POST
+        GetAllOrders:
+          Type: HttpApi
+          Properties:
+            Path: /api/v1/orders
+            Method: GET
+        GetAnOrder:
+          Type: HttpApi
+          Properties:
+            Path: /api/v1/orders/{order_id}
+            Method: GET
+        DeleteAnOrder:
+          Type: HttpApi
+          Properties:
+            Path: /api/v1/orders/{order_id}
+            Method: DELETE
+        UpdateAnOrder:
+          Type: HttpApi
+          Properties:
+            Path: /api/v1/orders/{order_id}
+            Method: PUT
+        CreateAReview:
+          Type: HttpApi
+          Properties:
+            Path: /api/v1/products/{product_id}/reviews
+            Method: POST
+        GetAllReviews:
+          Type: HttpApi
+          Properties:
+            Path: /api/v1/products/{product_id}/reviews
+            Method: GET
+        GetSampleTrace:
+          Type: HttpApi
+          Properties:
+            Path: /sample/trace.json
+            Method: GET
+    Metadata:
+      Dockerfile: Dockerfile-lambda
+      DockerContext: .
+      DockerTag: api-insight-v1
+
+Outputs:
+  ApiInsightURL:
+    Description: "API Gateway endpoint URL for Prod stage for Api Insight function"
+    Value: !Sub "https://${ServerlessHttpApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/"
+  ApiInsightFunction:
+    Description: "Api Insight Lambda Function ARN"
+    Value: !GetAtt ApiInsightFunction.Arn
+  ApiInsightFunctionIamRole:
+    Description: "Implicit IAM Role created for Api Insight function"
+    Value: !GetAtt ApiInsightFunctionRole.Arn

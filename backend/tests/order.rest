@@ -1,0 +1,55 @@
+# Copyright Skyramp Authors 2024
+
+@baseUrl = http://localhost:8000
+@apiVersion = v1
+@apiKey = API_KEY
+
+### Create a new product for testing
+# @name product_create
+POST {{baseUrl}}/api/{{apiVersion}}/products
+Content-Type: application/json
+X-API-Key: {{apiKey}}
+
+{
+    "name": "Test Product",
+    "description": "A test product for order testing",
+    "price": 9.99,
+        "image_url": "https://example.com/image.png",
+    "category": "Sample Category",
+    "in_stock": true
+}
+
+### Get the product ID
+@product_id = {{product_create.response.body.id}}
+
+### Create a new order
+# @name order_create
+POST {{baseUrl}}/api/{{apiVersion}}/orders
+Content-Type: application/json
+X-API-Key: {{apiKey}}
+
+{
+    "customer_email": "test@example.com",
+    "items": [
+        {
+            "product_id": {{product_id}},
+            "quantity": 2,
+            "unit_price": 9.99
+        }
+    ]
+}
+
+### Get the order ID
+@order_id = {{order_create.response.body.id}}
+
+### Get the created order
+GET {{baseUrl}}/api/{{apiVersion}}/orders/{{order_id}}
+X-API-Key: {{apiKey}}
+
+### Delete the order
+DELETE {{baseUrl}}/api/{{apiVersion}}/orders/{{order_id}}
+X-API-Key: {{apiKey}}
+
+### Delete the test product
+DELETE {{baseUrl}}/api/{{apiVersion}}/products/{{product_id}}
+X-API-Key: {{apiKey}} 

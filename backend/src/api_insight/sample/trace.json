@@ -1,0 +1,274 @@
+[
+    {
+        "Destination": "demoshop.skyramp.dev",
+        "Method": "POST",
+        "Path": "/api/v1/products",
+        "Port": 443,
+        "QueryParams": {},
+        "RequestBody": "{\n    \"name\": \"Macbook Pro\",\n    \"description\": \"High-performance laptop\",\n    \"price\": 2499.99,\n    \"image_url\": \"https://images.app.goo.gl/jGPHo3ZEzEbHG8o2A\",\n    \"category\": \"Laptop\",\n    \"in_stock\": true\n  }",
+        "RequestHeaders": {
+            "Accept": [
+                "*/*"
+            ],
+            "Content-Length": [
+                "211"
+            ],
+            "Content-Type": [
+                "application/json"
+            ],
+            "User-Agent": [
+                "curl/8.7.1"
+            ]
+        },
+        "ResponseBody": "{\"name\":\"Macbook Pro\",\"description\":\"High-performance laptop\",\"price\":2499.99,\"image_url\":\"https://images.app.goo.gl/jGPHo3ZEzEbHG8o2A\",\"category\":\"Laptop\",\"in_stock\":true,\"product_id\":0,\"created_at\":\"2025-04-07T21:10:53.015703\"}",
+        "ResponseHeaders": {
+            "Cf-Cache-Status": [
+                "DYNAMIC"
+            ],
+            "Cf-Ray": [
+                "92cc83a34c01fbf2-EWR"
+            ],
+            "Connection": [
+                "close"
+            ],
+            "Content-Type": [
+                "application/json"
+            ],
+            "Date": [
+                "Mon, 07 Apr 2025 21:10:53 GMT"
+            ],
+            "Nel": [
+                "{\"success_fraction\":0,\"report_to\":\"cf-nel\",\"max_age\":604800}"
+            ],
+            "Report-To": [
+                "{\"endpoints\":[{\"url\":\"https:\\/\\/a.nel.cloudflare.com\\/report\\/v4?s=rC6JTRETiCa8wJkaCbbFFkm6YASAVvPw57aRA51e9d5r3C0AEEsgp8lx3EvO7pB7cY8iaYlz5%2B0j3Q7d2T5DfYxfltg%2BqDa92T45D8LXlvZSQBQ%2BrIdXE3gTbyEmR5gjXmLYKoCC\"}],\"group\":\"cf-nel\",\"max_age\":604800}"
+            ],
+            "Server": [
+                "cloudflare"
+            ],
+            "Server-Timing": [
+                "cfL4;desc=\"?proto=TCP\u0026rtt=8274\u0026min_rtt=8209\u0026rtt_var=3208\u0026sent=5\u0026recv=8\u0026lost=0\u0026retrans=0\u0026sent_bytes=4188\u0026recv_bytes=1954\u0026delivery_rate=497651\u0026cwnd=206\u0026unsent_bytes=0\u0026cid=923596acda5700d9\u0026ts=1220\u0026x=0\""
+            ],
+            "Transfer-Encoding": [
+                "chunked"
+            ],
+            "Vary": [
+                "Accept-Encoding"
+            ],
+            "X-Amzn-Remapped-Content-Length": [
+                "229"
+            ],
+            "X-Amzn-Requestid": [
+                "a9f9c936-7531-4127-a724-01df0d7a1b9d"
+            ],
+            "X-Amzn-Trace-Id": [
+                "Root=1-67f43f5c-1563d38159060a253298e60a;Sampled=1;Lineage=1:6fc1ab1d:0"
+            ]
+        },
+        "Scheme": "https",
+        "Source": "172.20.0.1:61664",
+        "StatusCode": 201,
+        "Timestamp": "2025-04-07T21:10:53.815437222Z"
+    },
+    {
+        "Destination": "demoshop.skyramp.dev",
+        "Method": "POST",
+        "Path": "/api/v1/orders",
+        "Port": 443,
+        "QueryParams": {},
+        "RequestBody": "{\n    \"customer_email\": \"abc@mail.com\",\n    \"items\": [\n      {\n        \"product_id\": 0,\n        \"quantity\": 2,\n        \"unit_price\": 2499.99\n      }\n    ]\n  }",
+        "RequestHeaders": {
+            "Accept": [
+                "*/*"
+            ],
+            "Content-Length": [
+                "158"
+            ],
+            "Content-Type": [
+                "application/json"
+            ],
+            "User-Agent": [
+                "curl/8.7.1"
+            ]
+        },
+        "ResponseBody": "{\"customer_email\":\"abc@mail.com\",\"status\":\"pending\",\"total_amount\":4999.98,\"order_id\":0,\"items\":[{\"quantity\":2,\"product_id\":0,\"unit_price\":2499.99,\"order_item_id\":0,\"order_id\":0}],\"created_at\":\"2025-04-07T21:11:00.875814\",\"updated_at\":\"2025-04-07T21:11:00.875941\"}",
+        "ResponseHeaders": {
+            "Cf-Cache-Status": [
+                "DYNAMIC"
+            ],
+            "Cf-Ray": [
+                "92cc83d2fea5fbf2-EWR"
+            ],
+            "Connection": [
+                "close"
+            ],
+            "Content-Type": [
+                "application/json"
+            ],
+            "Date": [
+                "Mon, 07 Apr 2025 21:11:01 GMT"
+            ],
+            "Nel": [
+                "{\"success_fraction\":0,\"report_to\":\"cf-nel\",\"max_age\":604800}"
+            ],
+            "Report-To": [
+                "{\"endpoints\":[{\"url\":\"https:\\/\\/a.nel.cloudflare.com\\/report\\/v4?s=DJd2aDi8xizYID6zlPa8RT9Xsr6EZ9QwUAXNG40u6DEAqZr%2BdNBiwXgtzvCSEpmELnYqEj3e0k8Sn1hNs%2FdpdPlc2Eb8MTZT2jJTaey6GBjBvIMCad2IrVz2vHhX5sUzfwmZAUJJ\"}],\"group\":\"cf-nel\",\"max_age\":604800}"
+            ],
+            "Server": [
+                "cloudflare"
+            ],
+            "Server-Timing": [
+                "cfL4;desc=\"?proto=TCP\u0026rtt=8323\u0026min_rtt=8209\u0026rtt_var=2504\u0026sent=7\u0026recv=11\u0026lost=0\u0026retrans=0\u0026sent_bytes=5401\u0026recv_bytes=2307\u0026delivery_rate=497651\u0026cwnd=207\u0026unsent_bytes=0\u0026cid=923596acda5700d9\u0026ts=8860\u0026x=0\""
+            ],
+            "Transfer-Encoding": [
+                "chunked"
+            ],
+            "Vary": [
+                "Accept-Encoding"
+            ],
+            "X-Amzn-Remapped-Content-Length": [
+                "264"
+            ],
+            "X-Amzn-Requestid": [
+                "e969f281-e076-4f04-9856-3304b2810958"
+            ],
+            "X-Amzn-Trace-Id": [
+                "Root=1-67f43f64-0bbb85b022a5a05502d7f213;Sampled=1;Lineage=1:6fc1ab1d:0"
+            ]
+        },
+        "Scheme": "https",
+        "Source": "172.20.0.1:62520",
+        "StatusCode": 201,
+        "Timestamp": "2025-04-07T21:11:01.524656961Z"
+    },
+    {
+        "Destination": "demoshop.skyramp.dev",
+        "Method": "GET",
+        "Path": "/api/v1/orders/0",
+        "Port": 443,
+        "QueryParams": {},
+        "RequestBody": "",
+        "RequestHeaders": {
+            "Accept": [
+                "*/*"
+            ],
+            "User-Agent": [
+                "curl/8.7.1"
+            ]
+        },
+        "ResponseBody": "{\"customer_email\":\"abc@mail.com\",\"status\":\"pending\",\"total_amount\":4999.98,\"order_id\":0,\"items\":[{\"quantity\":2,\"product_id\":0,\"unit_price\":2499.99,\"order_item_id\":0,\"order_id\":0}],\"created_at\":\"2025-04-07T21:11:07.436985\",\"updated_at\":\"2025-04-07T21:11:07.437119\"}",
+        "ResponseHeaders": {
+            "Cf-Cache-Status": [
+                "DYNAMIC"
+            ],
+            "Cf-Ray": [
+                "92cc83fbee7dfbf2-EWR"
+            ],
+            "Connection": [
+                "close"
+            ],
+            "Content-Type": [
+                "application/json"
+            ],
+            "Date": [
+                "Mon, 07 Apr 2025 21:11:07 GMT"
+            ],
+            "Nel": [
+                "{\"success_fraction\":0,\"report_to\":\"cf-nel\",\"max_age\":604800}"
+            ],
+            "Report-To": [
+                "{\"endpoints\":[{\"url\":\"https:\\/\\/a.nel.cloudflare.com\\/report\\/v4?s=Zl6JeZ%2Fr8BZecGrGMAxHTYxc9XDp7JfuV0eWw%2Bgsq8OqY8I63pKbP1EeQXeM4GcLIjjwbLeVKRLGq0KRFoPOh9mqHCcwPXjbItpw5dcrURCGFV9yjDjUu4lhHMlfIm5CBDdincVT\"}],\"group\":\"cf-nel\",\"max_age\":604800}"
+            ],
+            "Server": [
+                "cloudflare"
+            ],
+            "Server-Timing": [
+                "cfL4;desc=\"?proto=TCP\u0026rtt=17488\u0026min_rtt=8209\u0026rtt_var=20209\u0026sent=9\u0026recv=13\u0026lost=0\u0026retrans=0\u0026sent_bytes=6648\u0026recv_bytes=2450\u0026delivery_rate=497651\u0026cwnd=208\u0026unsent_bytes=0\u0026cid=923596acda5700d9\u0026ts=15282\u0026x=0\""
+            ],
+            "Transfer-Encoding": [
+                "chunked"
+            ],
+            "Vary": [
+                "Accept-Encoding"
+            ],
+            "X-Amzn-Remapped-Content-Length": [
+                "264"
+            ],
+            "X-Amzn-Requestid": [
+                "d50d77ed-5d9a-4b9f-a609-e7c0c87a0be1"
+            ],
+            "X-Amzn-Trace-Id": [
+                "Root=1-67f43f6b-7d2720846e7b68ae31c1c1d3;Sampled=1;Lineage=1:6fc1ab1d:0"
+            ]
+        },
+        "Scheme": "https",
+        "Source": "172.20.0.1:62526",
+        "StatusCode": 200,
+        "Timestamp": "2025-04-07T21:11:07.883115047Z"
+    },
+    {
+        "Destination": "demoshop.skyramp.dev",
+        "Method": "DELETE",
+        "Path": "/api/v1/orders/0",
+        "Port": 443,
+        "QueryParams": {},
+        "RequestBody": "",
+        "RequestHeaders": {
+            "Accept": [
+                "*/*"
+            ],
+            "User-Agent": [
+                "curl/8.7.1"
+            ]
+        },
+        "ResponseBody": "{\"message\":\"Order cancelled successfully\"}",
+        "ResponseHeaders": {
+            "Cf-Cache-Status": [
+                "DYNAMIC"
+            ],
+            "Cf-Ray": [
+                "92cc8422babdfbf2-EWR"
+            ],
+            "Connection": [
+                "close"
+            ],
+            "Content-Type": [
+                "application/json"
+            ],
+            "Date": [
+                "Mon, 07 Apr 2025 21:11:14 GMT"
+            ],
+            "Nel": [
+                "{\"success_fraction\":0,\"report_to\":\"cf-nel\",\"max_age\":604800}"
+            ],
+            "Report-To": [
+                "{\"endpoints\":[{\"url\":\"https:\\/\\/a.nel.cloudflare.com\\/report\\/v4?s=93A1Dd928Wobo0JqKtkuFWaP4tTTiSynFKEIL3rKSIMySZ0xkhw8QRnJPozvKkQE3btYBPLyhJ9M9sNKkEzhzic4X%2FjqMNN9l8bprBiHs3EsfwfZTSLWaraEMSn1UH54SectaCjT\"}],\"group\":\"cf-nel\",\"max_age\":604800}"
+            ],
+            "Server": [
+                "cloudflare"
+            ],
+            "Server-Timing": [
+                "cfL4;desc=\"?proto=TCP\u0026rtt=16482\u0026min_rtt=8209\u0026rtt_var=17169\u0026sent=12\u0026recv=15\u0026lost=0\u0026retrans=0\u0026sent_bytes=7889\u0026recv_bytes=2596\u0026delivery_rate=497651\u0026cwnd=210\u0026unsent_bytes=0\u0026cid=923596acda5700d9\u0026ts=21458\u0026x=0\""
+            ],
+            "Transfer-Encoding": [
+                "chunked"
+            ],
+            "Vary": [
+                "Accept-Encoding"
+            ],
+            "X-Amzn-Remapped-Content-Length": [
+                "42"
+            ],
+            "X-Amzn-Requestid": [
+                "822ff112-de6f-4964-8a92-c0edef78f1ce"
+            ],
+            "X-Amzn-Trace-Id": [
+                "Root=1-67f43f71-71d1e570110896014aa991f7;Sampled=1;Lineage=1:6fc1ab1d:0"
+            ]
+        },
+        "Scheme": "https",
+        "Source": "172.20.0.1:59748",
+        "StatusCode": 200,
+        "Timestamp": "2025-04-07T21:11:14.05274255Z"
+    }
+]
