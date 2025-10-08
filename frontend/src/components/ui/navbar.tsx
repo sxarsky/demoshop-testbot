@@ -1,6 +1,6 @@
 import React from 'react';
 import { getSessionIdFromCookie } from '@/lib/utils';
-import { apiUrl } from '../../../config';
+import { apiUrl } from '../../config';
 
 // Utility to get or generate a persistent session ID
 async function getOrCreateSessionId() {
