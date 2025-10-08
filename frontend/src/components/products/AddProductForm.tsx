@@ -12,6 +12,7 @@ import {
 import "@/styles/select-zindex-workaround.css";
 import { useNavigate } from "react-router-dom";
 import { getSessionIdFromCookie } from '../../lib/utils';
+import { apiUrl } from '../../config';
 
 interface Product {
   name: string;
@@ -51,7 +52,7 @@ const AddProductForm: React.FC = () => {
     };
 
     try {
-      const res = await fetch("https://demoshop.skyramp.dev/api/v1/products", {
+      const res = await fetch(apiUrl("/api/v1/products"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

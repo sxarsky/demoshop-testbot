@@ -4,6 +4,7 @@ import { productImageUrlMap } from '@/lib/product_utils'
 import { Button } from '@/components/ui/button'
 import { NavBar } from '../ui/navbar';
 import { getSessionIdFromCookie } from '../../lib/utils';
+import { apiUrl } from '../../config';
 
 export default function ProductDetail() {
   const { id } = useParams()
@@ -21,7 +22,7 @@ export default function ProductDetail() {
   useEffect(() => {
     setLoading(true)
     const sessionId = getSessionIdFromCookie();
-    fetch(`https://demoshop.skyramp.dev/api/v1/products/${id}`, {
+    fetch(apiUrl(`/api/v1/products/${id}`), {
       headers: { 'Authorization': `Bearer ${sessionId}` }
     })
       .then(res => {
@@ -57,9 +58,9 @@ export default function ProductDetail() {
         image_url: formState.image_url || '',
       };
       const { product_id, created_at, updated_at, ...reducedPayload } = payload; // Exclude unwanted fields
-      const res = await fetch(`https://demoshop.skyramp.dev/api/v1/products/${product.product_id}`, {
+      const res = await fetch(apiUrl(`/api/v1/products/${product.product_id}`), {
         method: 'PUT',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${sessionId}`
         },
@@ -80,7 +81,7 @@ export default function ProductDetail() {
     setDeleting(true);
     const sessionId = getSessionIdFromCookie();
     try {
-      await fetch(`https://demoshop.skyramp.dev/api/v1/products/${product.product_id}`, { 
+      await fetch(apiUrl(`/api/v1/products/${product.product_id}`), {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${sessionId}` }
       });

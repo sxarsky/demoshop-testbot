@@ -1,6 +1,7 @@
 
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { API_BASE_URL } from "../config";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -46,7 +47,7 @@ export async function ensureSessionId() {
     }
     // Try to generate session ID using API
     try {
-      const res = await fetch('https://demoshop.skyramp.dev/api/v1/generate', {
+      const res = await fetch(`${API_BASE_URL}/api/v1/generate`, {
         headers: { 'Authorization': `Bearer ${getSessionIdFromCookie()}` }
       });
       await sleep(500);

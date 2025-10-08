@@ -2,6 +2,7 @@ import { useEffect, useState, useRef, useCallback } from "react"
 import { useLocation } from "react-router-dom"
 import ProductItem from "./ProductItem"
 import { getSessionIdFromCookie } from '../../lib/utils';
+import { apiUrl } from '../../config';
 
 interface Product {
   product_id: number
@@ -44,7 +45,7 @@ export default function ProductList() {
   
       const sessionId = getSessionIdFromCookie();
       
-      return fetch('https://demoshop.skyramp.dev/api/v1/products?limit=50', {
+      return fetch(apiUrl('/api/v1/products?limit=50'), {
         headers: { 'Authorization': `Bearer ${sessionId}` }
       })
         .then(res => {

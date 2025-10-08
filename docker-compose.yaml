@@ -1,0 +1,60 @@
+services:
+  # Redis database for backend
+  redis:
+    image: redis:latest
+    container_name: demoshop-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - demoshop-network
+
+  # Initialize Redis with demo data
+  init-data:
+    build:
+      context: ./backend/init_data
+    environment:
+      - SKYRAMP_ENVIRONMENT=local
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    command: ["python3", "/init_data/load_data.py"]
+    depends_on:
+      - redis
+    networks:
+      - demoshop-network
+
+  # Backend API service
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: demoshop-backend:latest
+    container_name: demoshop-backend
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    ports:
+      - "8000:8000"
+    depends_on:
+      - init-data
+    networks:
+      - demoshop-network
+
+  # Frontend UI service
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: demoshop-frontend:latest
+    container_name: demoshop-frontend
+    environment:
+      - VITE_API_URL=http://backend:8000
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    networks:
+      - demoshop-network
+
+networks:
+  demoshop-network:
+    driver: bridge

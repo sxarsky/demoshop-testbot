@@ -1,0 +1,94 @@
+name: Backend CI
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-ci.yaml'
+  pull_request:
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-ci.yaml'
+
+permissions:
+  id-token: write
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+    working-directory: backend
+
+env:
+  ECR_REGISTRY: "664418979402.dkr.ecr.us-west-2.amazonaws.com/letsramp/api-insight"
+  AWS_REGION: "us-west-2"
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build containers
+        run: docker compose build
+
+      - name: Start services
+        run: docker compose up -d
+
+      - name: Wait for service to be ready
+        run: sleep 10
+
+      - name: Fetch openapi
+        run: |
+          RESULT=$(curl -s -X GET http://localhost:8000/openapi.json || "Curl Failed")
+          echo $RESULT | jq .
+
+      - name: Validate API response
+        run: curl -I -X GET http://localhost:8000
+
+      - name: Run Skyramp generated tests
+        shell: bash
+        working-directory: backend
+        run: |
+          python3 -m pip install skyramp
+          python3 -m pip install pytest
+          export SKYRAMP_TEST_TOKEN=test-bearer-token
+          pytest -vvv tests/python/products_*.py
+          pytest -vvv tests/python/reset_contract_test.py
+
+      - name: Stop services
+        run: docker compose down
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::664418979402:role/github-ecr-api-insight-repo
+          aws-region: us-west-2
+
+      - name: Login to Amazon ECR Private
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Calculate Short SHA
+        run: echo "SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
+      - name: Build and push lambda image
+        uses: docker/build-push-action@v6
+        with:
+          context: backend
+          file: backend/Dockerfile-lambda
+          push: true
+          provenance: false
+          tags: ${{ env.ECR_REGISTRY}}:${{ env.SHORT_SHA }}

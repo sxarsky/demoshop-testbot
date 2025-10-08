@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import OrderItem from "./OrderItem";
 import { getSessionIdFromCookie } from '../../lib/utils';
+import { apiUrl } from '../../config';
 
 export type Order = {
   order_id: number;
@@ -18,7 +19,7 @@ export default function OrderList() {
     const fetchOrders = () => {
       setLoading(true);
       const sessionId = getSessionIdFromCookie();
-      fetch('https://demoshop.skyramp.dev/api/v1/orders?limit=50', {
+      fetch(apiUrl('/api/v1/orders?limit=50'), {
         headers: { 'Authorization': `Bearer ${sessionId}` }
       })
         .then(res => {
