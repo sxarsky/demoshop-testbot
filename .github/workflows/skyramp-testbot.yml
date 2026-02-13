@@ -1,0 +1,52 @@
+# Test workflow for early-access: Verify installing @skyramp/mcp from GitHub repo
+# Uses test-bot from archit/skyr-3528
+name: Skyramp Testbot (Early Access)
+on: pull_request
+
+env:
+  SKYRAMP_TEST_TOKEN: ${{ secrets.SKYRAMP_TEST_TOKEN }}
+  SKYRAMP_FEATURE_TESTBOT: "1"
+
+jobs:
+  skyramp-testbot:
+    runs-on: ubuntu-latest
+    if: github.event.head_commit.author.name != 'Skyramp Test Bot'
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Validate PAT token
+        env:
+          PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
+        run: |
+          if [ -z "$PAT_TOKEN" ]; then
+            echo "::error::PAT_TOKEN secret is not configured."
+            exit 1
+          fi
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.PAT_TOKEN }}
+
+      - name: Run Skyramp Test Bot
+        id: testbot
+        uses: letsramp/test-bot@archit/skyr-3528
+        with:
+          skyramp_license_file: ${{ secrets.SKYRAMP_LICENSE }}
+          cursor_api_key: ${{ secrets.CURSOR_API_KEY }}
+          auto_commit: true
+          post_pr_comment: true
+
+          # Install @skyramp/mcp from the private GitHub repo
+          skyramp_mcp_source: github
+          skyramp_mcp_github_token: ${{ secrets.PAT_TOKEN }}
+          skyramp_mcp_github_ref: archit/skyr-3528
+
+      - name: Check execution status
+        run: |
+          echo "Tests modified: ${{ steps.skyramp.outputs.tests_modified }}"
+          echo "Tests created: ${{ steps.skyramp.outputs.tests_created }}"
+          echo "Tests executed: ${{ steps.skyramp.outputs.tests_executed }}"
