@@ -35,8 +35,7 @@ jobs:
         with:
           skyramp_license_file: ${{ secrets.SKYRAMP_LICENSE }}
           cursor_api_key: ${{ secrets.CURSOR_API_KEY }}
-          auto_commit: true
-          post_pr_comment: true
+          enable_debug: true
 
           # Install @skyramp/mcp from the private GitHub repo
           skyramp_mcp_source: github
