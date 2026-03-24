@@ -109,13 +109,12 @@ jobs:
 
       - name: Run Skyramp Testbot
         id: testbot
-        uses: skyramp/testbot@v0.5.4
+        uses: skyramp/testbot@a7128e2f65aec047943c9bb03b5839072c7bdff8 # v0.6.0
         with:
-          skyramp_license_file: ${{ secrets.SKYRAMP_LICENSE }}
-          anthropic_api_key: ${{ secrets.SKYRAMP_TESTBOT_API_KEY }}
-
-          skyramp_mcp_version: '0.0.63-rc.6'
-
+          skyrampLicenseFile: ${{ secrets.SKYRAMP_LICENSE_FILE }}
+          anthropicApiKey: ${{ secrets.SKYRAMP_TESTBOT_API_KEY }}
+          skyrampMcpVersion: '0.0.63-rc.6'
+            
       - name: Check execution status
         run: |
           echo "Tests modified: ${{ steps.testbot.outputs.tests_modified }}"

@@ -12,7 +12,7 @@ services:
   - serviceName: backend
     language: python
     framework: pytest
-    outputDir: backend/tests
+    testDirectory: backend/tests
     api:
       schemaPath: http://localhost:8000/openapi.json
       authType: none
@@ -25,7 +25,7 @@ services:
   - serviceName: frontend
     language: typescript
     framework: playwright
-    outputDir: frontend/tests
+    testDirectory: frontend/tests
     api:
       schemaPath: ""
       authType: none
