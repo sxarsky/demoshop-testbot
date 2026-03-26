@@ -15,7 +15,7 @@ services:
     testDirectory: backend/tests
     api:
       schemaPath:  http://localhost:8000/openapi.json
-      authType: Bearer
+      authType: bearer
       authHeader: Authorization
       baseUrl: http://localhost:8000
     runtimeDetails:

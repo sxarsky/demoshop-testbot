@@ -50,10 +50,12 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        # Baked into the Vite bundle at build time.
+        # Browser runs on the host, so use localhost (mapped port), not Docker-internal hostname.
+        VITE_API_URL: http://localhost:8000
     image: demoshop-frontend:latest
     container_name: demoshop-frontend
-    environment:
-      - VITE_API_URL=http://backend:8000
     ports:
       - "5173:5173"
     depends_on:

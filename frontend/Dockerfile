@@ -3,6 +3,9 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+# VITE_API_URL must be set at build time (Vite statically replaces import.meta.env)
+ARG VITE_API_URL=http://localhost:8000
+
 # Copy package files
 COPY package*.json ./
 
@@ -12,8 +15,8 @@ RUN npm ci
 # Copy source code
 COPY . .
 
-# Build the application
-RUN npm run build
+# Build the application with the API URL baked in
+RUN VITE_API_URL=${VITE_API_URL} npm run build
 
 # Production stage
 FROM node:20-alpine
