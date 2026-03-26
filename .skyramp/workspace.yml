@@ -4,19 +4,19 @@ workspace:
   repoUrl: https://github.com/letsramp/demoshop-fullstack.git
 metadata:
   schemaVersion: v1
-  mcpVersion: 1.0.0
-  executorVersion: v1.3.9
-  createdAt: "2026-02-18T19:42:22.676Z"
-  updatedAt: "2026-02-18T19:42:22.680Z"
+  mcpVersion: next
+  executorVersion: v1.3.16
+  createdAt: "2026-03-26T17:04:46.039Z"
+  updatedAt: "2026-03-26T17:04:46.044Z"
 services:
   - serviceName: backend
     language: python
     framework: pytest
     testDirectory: backend/tests
     api:
-      schemaPath: http://localhost:8000/openapi.json
-      authType: none
-      authHeader: ""
+      schemaPath:  http://localhost:8000/openapi.json
+      authType: Bearer
+      authHeader: Authorization
       baseUrl: http://localhost:8000
     runtimeDetails:
       serverStartCommand: docker compose up -d backend
@@ -27,9 +27,6 @@ services:
     framework: playwright
     testDirectory: frontend/tests
     api:
-      schemaPath: ""
-      authType: none
-      authHeader: ""
       baseUrl: http://localhost:5173
     runtimeDetails:
       serverStartCommand: docker compose up -d frontend
