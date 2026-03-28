@@ -1,5 +1,4 @@
-# Skyramp Test Bot workflow (uses develop branch)
-name: Skyramp Testbot (Early Access)
+name: Skyramp Testbot
 
 on:
   pull_request:
@@ -76,11 +75,8 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.event.issue.number || github.run_id }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
-env:
-  SKYRAMP_TEST_TOKEN: ${{ secrets.SKYRAMP_TEST_TOKEN }}
-
 jobs:
-  skyramp-testbot:
+  testbot:
     # Only run for pull_request events or issue_comment on PRs mentioning @skyramp-testbot
     if: >-
       github.event_name == 'pull_request' ||
@@ -92,7 +88,7 @@ jobs:
       checks: write
 
     steps:
-      # Generate a GitHub App installation token for branded PR comments
+      # Generate a GitHub App installation token to retrigger CI workflows on push
       # https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/making-authenticated-api-requests-with-a-github-app-in-a-github-actions-workflow
       - name: Generate GitHub App Token
         id: app-token
@@ -106,17 +102,8 @@ jobs:
           fetch-depth: 0
           token: ${{ steps.app-token.outputs.token }}
 
-      - name: Run Skyramp Testbot
-        id: testbot
-        uses: skyramp/testbot@v0.6.4
+      - uses: skyramp/testbot@d44805580e4611b28e751fd4ae3919964b163902 # v0.6.6
         with:
           skyrampLicenseFile: ${{ secrets.SKYRAMP_LICENSE_FILE }}
           anthropicApiKey: ${{ secrets.SKYRAMP_TESTBOT_API_KEY }}
           githubToken: ${{ steps.app-token.outputs.token }}
-          skyrampMcpVersion: 'next'
-
-      - name: Check execution status
-        run: |
-          echo "Tests modified: ${{ steps.testbot.outputs.tests_modified }}"
-          echo "Tests created: ${{ steps.testbot.outputs.tests_created }}"
-          echo "Tests executed: ${{ steps.testbot.outputs.tests_executed }}"
