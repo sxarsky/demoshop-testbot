@@ -20,7 +20,7 @@ class ProductBase(BaseModel):
     """
     name: str = Field(min_length=1, pattern=r'^[A-Za-z]+.*\s*$', examples=['bigbear', 'monkey'])
     description: str = Field(min_length=1, pattern=r'^[A-Za-z]+.*\s*$', examples=['Bear Soft Toy', 'Monkey Soft Toy'])
-    price: float = Field(ge=0, examples=[9.99, 29.99])
+    price: float = Field(ge=1.0, examples=[9.99, 29.99])
     image_url: str = Field(min_length=1, examples=['https://images.app.goo.gl/cgcHpeehRdu5osot8', 'data:image/png;base64,iVBORw0KGg...'])
     category: str = Field(min_length=1, pattern=r'^[A-Za-z]+.*\s*$', examples=['Toys', 'Stuffed Animals'])
     in_stock: bool = Field(default=False, examples=[True, False])
@@ -61,7 +61,7 @@ class ProductUpdate(BaseModel):
 
     name: str = Field(default=None, min_length=1, pattern=r'^[A-Za-z]+.*\s*$', json_schema_extra={'example': 'bigbear'})
     description: str = Field(default=None, min_length=1, pattern=r'^[A-Za-z]+.*\s*$', json_schema_extra={'example': 'Bear Soft Toy'})
-    price: float = Field(default=None, ge=0, json_schema_extra={'example': 29.99})
+    price: float = Field(default=None, ge=1.0, json_schema_extra={'example': 29.99})
     image_url: str = Field(default=None, min_length=1, json_schema_extra={'example': 'https://images.app.goo.gl/cgcHpeehRdu5osot8'})
     category: str = Field(default=None, min_length=1, pattern=r'^[A-Za-z]+.*\s*$', json_schema_extra={'example': 'Toys'})
     in_stock: bool = Field(default=False, json_schema_extra={'example': True})
@@ -75,7 +75,7 @@ class ProductUpdateResponse(ProductBase):
     """
 
     product_id: int = Field(examples=[1])
-    price: float = Field(default=None, ge=0, json_schema_extra={'example': 29.99})
+    price: float = Field(default=None, ge=1.0, json_schema_extra={'example': 29.99})
     created_at: datetime = Field(examples=['2025-02-25T10:54:22-05:00', '2025-02-26T10:54:22-05:00'])
     updated_at: datetime = Field(examples=['2025-02-25T10:54:22-05:00', '2025-02-26T10:54:22-05:00'])
 
