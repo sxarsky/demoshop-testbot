@@ -1,0 +1,28 @@
+[
+  {
+    "Source": "192.168.65.1:39998",
+    "Destination": "localhost",
+    "RequestBody": "{\"category\": \"Toys\", \"description\": \"Test product\", \"image_url\": \"https://images.app.goo.gl/cgcHpeehRdu5osot8\", \"in_stock\": true, \"name\": \"testproduct\", \"price\": 0.50}",
+    "ResponseBody": "{\"detail\": [{\"field\": \"price\", \"message\": \"Input should be greater than or equal to 1\", \"type\": \"greater_than_equal\"}]}",
+    "RequestHeaders": {
+      "Content-Type": [
+        "application/json"
+      ],
+      "Authorization": [
+        "Bearer SKYRAMP_PLACEHOLDER_TOKEN"
+      ]
+    },
+    "ResponseHeaders": {
+      "Content-Type": [
+        "application/json"
+      ]
+    },
+    "Method": "POST",
+    "Path": "/api/v1/products",
+    "QueryParams": {},
+    "StatusCode": 400,
+    "Port": 8000,
+    "Timestamp": "2026-03-29T02:07:09.291Z",
+    "Scheme": "http"
+  }
+]
