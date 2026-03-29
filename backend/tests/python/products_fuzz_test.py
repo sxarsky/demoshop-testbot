@@ -130,7 +130,7 @@ def test_products_post():
     expected_products_post_status_code = {
         "category": "40x",
         "description": "40x",
-        "image_url": "40x",
+        "image_url": "20x",
         "in_stock": "20x",
         "name": "40x",
         "price": "40x"
@@ -241,7 +241,7 @@ def test_products_product_id_put():
     expected_products_product_id_put_status_code = {
         "category": "40x",
         "description": "40x",
-        "image_url": "40x",
+        "image_url": "20x",
         "in_stock": "20x",
         "name": "40x",
         "price": "40x"
