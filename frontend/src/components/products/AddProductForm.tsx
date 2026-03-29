@@ -13,6 +13,7 @@ import "@/styles/select-zindex-workaround.css";
 import { useNavigate } from "react-router-dom";
 import { getSessionIdFromCookie } from '../../lib/utils';
 import { apiUrl } from '../../config';
+import { processImageUpload } from '../../lib/imageUpload';
 
 interface Product {
   name: string;
@@ -21,6 +22,13 @@ interface Product {
   category: string;
   in_stock: boolean | null;
   price: string;
+}
+
+interface UploadedImage {
+  preview: string;
+  base64: string;
+  fileName: string;
+  fileSize: number;
 }
 
 const AddProductForm: React.FC = () => {
@@ -33,6 +41,9 @@ const AddProductForm: React.FC = () => {
     price: "",
   });
 
+  const [uploadedImage, setUploadedImage] = useState<UploadedImage | null>(null);
+  const [uploadError, setUploadError] = useState<string>("");
+
   const navigate = useNavigate();
 
   const handleChange = (
@@ -40,6 +51,40 @@ const AddProductForm: React.FC = () => {
   ) => {
     const { name, value } = e.target;
     setProduct((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadError("");
+
+    const result = await processImageUpload(file);
+
+    if (result.error) {
+      setUploadError(result.error);
+      setUploadedImage(null);
+      return;
+    }
+
+    setUploadedImage({
+      preview: result.preview,
+      base64: result.base64,
+      fileName: result.fileName,
+      fileSize: result.fileSize,
+    });
+
+    // Set image_url to base64 for backend
+    setProduct((prev) => ({ ...prev, image_url: result.base64 }));
+  };
+
+  const handleRemoveImage = () => {
+    setUploadedImage(null);
+    setUploadError("");
+    setProduct((prev) => ({ ...prev, image_url: "" }));
+    // Reset file input
+    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    if (fileInput) fileInput.value = "";
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -218,33 +263,62 @@ const AddProductForm: React.FC = () => {
           </div>
 
           <div className="pb-1">
-            <label className="block text-sm font-medium text-gray-700 mb-1 text-left" data-testId="add-product-label-image-url">
-              Image URL
+            <label className="block text-sm font-medium text-gray-700 mb-1 text-left" data-testId="add-product-label-image">
+              Product Image
             </label>
-            <Input
-              name="image_url"
-              placeholder="e.g. https://images.google.com"
-              value={product.image_url}
-              onChange={handleChange}
-              className="w-full min-w-[280px] max-w-full px-4 py-2"
-              data-testId="new_product_image_url"
-              style={{
-                fontFamily: 'inherit',
-                fontSize: '1rem',
-                fontWeight: 400,
-                border: '1.5px solid #d1d5db',
-                outline: 'none',
-                transition: 'border-color 0.2s, box-shadow 0.2s',
-              }}
-              onFocus={e => {
-                e.currentTarget.style.border = '1.5px solid #6b7280';
-                e.currentTarget.style.boxShadow = '0 0 0 1.5px #6b7280';
-              }}
-              onBlur={e => {
-                e.currentTarget.style.border = '1.5px solid #d1d5db';
-                e.currentTarget.style.boxShadow = 'none';
-              }}
-            />
+
+            {!uploadedImage ? (
+              <div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                  id="image-upload"
+                  data-testId="product-image-upload"
+                />
+                <label
+                  htmlFor="image-upload"
+                  className="cursor-pointer inline-block px-4 py-2 bg-gray-100 border-2 border-gray-300 rounded hover:bg-gray-200"
+                  style={{
+                    fontFamily: 'inherit',
+                    fontSize: '1rem',
+                  }}
+                  data-testId="upload-button"
+                >
+                  Choose File
+                </label>
+                {uploadError && (
+                  <div className="text-red-500 text-sm mt-1" data-testId="upload-error">
+                    {uploadError}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <div className="border-2 border-gray-300 rounded p-2">
+                  <img
+                    src={uploadedImage.preview}
+                    alt="Preview"
+                    className="max-h-40 mx-auto"
+                    data-testId="image-preview"
+                  />
+                </div>
+                <div className="text-sm text-gray-600" data-testId="image-info">
+                  <div data-testId="file-name">{uploadedImage.fileName}</div>
+                  <div data-testId="file-size">{uploadedImage.fileSize} bytes</div>
+                </div>
+                <Button
+                  type="button"
+                  onClick={handleRemoveImage}
+                  className="w-full text-red-600"
+                  variant="outline"
+                  data-testId="remove-image-button"
+                >
+                  Remove Image
+                </Button>
+              </div>
+            )}
           </div>
 
           <div className="pb-1">
