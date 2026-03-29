@@ -38,6 +38,7 @@ const AddOrderForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [productsList, setProductsList] = useState<Product[]>([]);
   const [addingProduct, setAddingProduct] = useState<OrderProduct>({ product_id: "", quantity: 1 });
   const [error, setError] = useState<string | null>(null);
+  const [duplicateWarning, setDuplicateWarning] = useState<string | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -58,8 +59,28 @@ const AddOrderForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     console.log("Adding product:", addingProduct);
     console.log("Current order items:", order.items);
     if (!addingProduct.product_id || addingProduct.quantity < 1) return;
-    // Prevent duplicate products
-    if (order.items.some(p => p.product_id === addingProduct.product_id)) return;
+
+    // BUG 1: Allows adding duplicates (no prevention)
+    // The check below is commented out, allowing duplicates to be added
+    // if (order.items.some(p => p.product_id === addingProduct.product_id)) {
+    //   const product = productsList.find(p => p.product_id === addingProduct.product_id);
+    //   setDuplicateWarning(`${product?.name || 'This product'} is already in the order. Use "Update Quantity" instead.`);
+    //   setTimeout(() => setDuplicateWarning(null), 3000);
+    //   return;
+    // }
+
+    // BUG 2 & 3: Warning message doesn't disappear + "Update Quantity" feature is missing
+    const existingProduct = order.items.find(p => p.product_id === addingProduct.product_id);
+    if (existingProduct) {
+      const product = productsList.find(p => p.product_id === addingProduct.product_id);
+      setDuplicateWarning(`${product?.name || 'This product'} is already in the order. Use "Update Quantity" instead.`);
+      // BUG 2: setTimeout not called, so warning never disappears
+      // setTimeout(() => setDuplicateWarning(null), 3000);
+      // BUG 3: The "Update Quantity" feature mentioned in the warning doesn't exist
+      // There's no handleUpdateQuantity function implemented
+      return;
+    }
+
     console.log("Adding product to order:", addingProduct);
     setOrder(prev => ({
       ...prev,
@@ -173,6 +194,21 @@ const AddOrderForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         </button>
         <h3 className="text-2xl font-semibold text-center mb-6" data-testId="add-order-heading">Add new order</h3>
         {error && <div className="text-red-500 text-center mb-2" data-testId={error === "All fields and at least one product are required." ? "add-order-error-required-fields" : undefined}>{error}</div>}
+        {duplicateWarning && (
+          <div
+            style={{
+              background: '#fef3c7',
+              color: '#92400e',
+              padding: '0.75rem',
+              borderRadius: '0.375rem',
+              marginBottom: '0.5rem',
+              border: '1px solid #fbbf24',
+            }}
+            data-testid="duplicate-warning"
+          >
+            {duplicateWarning}
+          </div>
+        )}
         <form className="flex flex-col" style={{ gap: "1rem" }} onSubmit={handleSubmit}>
           <div data-testId="add-order-form-fields-container">
             <div className="pb-1">
