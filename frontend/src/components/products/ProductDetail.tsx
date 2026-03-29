@@ -1,10 +1,37 @@
 import { useParams, useNavigate } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import { productImageUrlMap } from '@/lib/product_utils'
 import { Button } from '@/components/ui/button'
 import { NavBar } from '../ui/navbar';
 import { getSessionIdFromCookie } from '../../lib/utils';
-import { apiUrl } from '../../config';
+import { apiUrl } from '../../config'
+
+const AUTO_SAVE_DEBOUNCE_MS = 2000
+const SAVED_INDICATOR_MS = 2500
+
+function editableSnapshot(p: any) {
+  return {
+    name: p?.name ?? '',
+    description: p?.description ?? '',
+    category: p?.category ?? '',
+    price: String(p?.price ?? ''),
+    in_stock: p?.in_stock === true || p?.in_stock === 'true',
+    image_url: p?.image_url ?? '',
+  }
+}
+
+function editableFieldsDiffer(a: any, b: any) {
+  const sa = editableSnapshot(a)
+  const sb = editableSnapshot(b)
+  return (
+    sa.name !== sb.name ||
+    sa.description !== sb.description ||
+    sa.category !== sb.category ||
+    sa.price !== sb.price ||
+    sa.in_stock !== sb.in_stock ||
+    sa.image_url !== sb.image_url
+  )
+}
 
 export default function ProductDetail() {
   const { id } = useParams()
@@ -16,6 +43,19 @@ export default function ProductDetail() {
   const [formState, setFormState] = useState<any>(null);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
+
+  const formStateRef = useRef(formState);
+  const productRef = useRef(product);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const savedIndicatorRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    formStateRef.current = formState;
+  }, [formState]);
+  useEffect(() => {
+    productRef.current = product;
+  }, [product]);
 
   // Use shared getSessionIdFromCookie from utils
 
@@ -46,19 +86,23 @@ export default function ProductDetail() {
     setFormState((prev: any) => ({ ...prev, [name]: value }));
   };
 
-  // Save product changes
-  const handleSave = async () => {
+  const persistProduct = useCallback(async (exitEditAfter: boolean) => {
+    const state = formStateRef.current;
+    const prod = productRef.current;
+    if (!state || !prod?.product_id) return;
+
+    setSaveStatus('saving');
     setSaving(true);
     const sessionId = getSessionIdFromCookie();
     try {
       const payload = {
-        ...formState,
-        price: parseFloat(formState.price),
-        in_stock: formState.in_stock === true || formState.in_stock === 'true',
-        image_url: formState.image_url || '',
+        ...state,
+        price: parseFloat(state.price),
+        in_stock: state.in_stock === true || state.in_stock === 'true',
+        image_url: state.image_url || '',
       };
-      const { product_id, created_at, updated_at, ...reducedPayload } = payload; // Exclude unwanted fields
-      const res = await fetch(apiUrl(`/api/v1/products/${product.product_id}`), {
+      const { product_id, created_at, updated_at, ...reducedPayload } = payload;
+      const res = await fetch(apiUrl(`/api/v1/products/${prod.product_id}`), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -67,13 +111,71 @@ export default function ProductDetail() {
         body: JSON.stringify(reducedPayload),
       });
       if (!res.ok) throw new Error('Failed to update product');
-      setProduct({ ...product, ...formState });
-      setEditMode(false);
+      const merged = { ...prod, ...state };
+      setProduct(merged);
+      productRef.current = merged;
+      if (exitEditAfter) {
+        setEditMode(false);
+        setSaveStatus('idle');
+      } else {
+        setSaveStatus('saved');
+        if (savedIndicatorRef.current) clearTimeout(savedIndicatorRef.current);
+        savedIndicatorRef.current = setTimeout(() => {
+          savedIndicatorRef.current = null;
+          setSaveStatus('idle');
+        }, SAVED_INDICATOR_MS);
+      }
     } catch (err) {
+      setSaveStatus('idle');
       alert('Failed to save product.');
     } finally {
       setSaving(false);
     }
+  }, []);
+
+  useEffect(() => {
+    if (!editMode || !product || !formState) return;
+    if (!editableFieldsDiffer(formState, product)) return;
+
+    setSaveStatus(prev => (prev === 'saved' ? 'idle' : prev));
+
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      debounceRef.current = null;
+      void persistProduct(false);
+    }, AUTO_SAVE_DEBOUNCE_MS);
+
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+        debounceRef.current = null;
+      }
+    };
+  }, [formState, editMode, product, persistProduct]);
+
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+        debounceRef.current = null;
+      }
+      if (savedIndicatorRef.current) {
+        clearTimeout(savedIndicatorRef.current);
+        savedIndicatorRef.current = null;
+      }
+    };
+  }, []);
+
+  const handleSave = () => {
+    if (savedIndicatorRef.current) {
+      clearTimeout(savedIndicatorRef.current);
+      savedIndicatorRef.current = null;
+    }
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+      debounceRef.current = null;
+    }
+    void persistProduct(true);
   };
 
   // Delete product
@@ -267,6 +369,16 @@ export default function ProductDetail() {
       )}
       {/* Buttons centered */}
       <div className="flex flex-col items-center" style={{ gap: '1rem', marginTop: '1.5rem' }} data-testId="product-detail-buttons">
+        {editMode && (saveStatus === 'saving' || saveStatus === 'saved') && (
+          <div
+            className="text-sm text-gray-600 min-h-[1.25rem]"
+            style={{ textAlign: 'center' }}
+            data-testId="product-detail-save-status"
+            aria-live="polite"
+          >
+            {saveStatus === 'saving' ? 'Saving...' : 'Saved'}
+          </div>
+        )}
         {editMode ? (
           <Button
             variant="default"
