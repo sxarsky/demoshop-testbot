@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import "@/styles/select-zindex-workaround.css";
 import { useNavigate } from "react-router-dom";
 import { getSessionIdFromCookie } from '../../lib/utils';
 import { apiUrl } from '../../config';
+import { processImageUpload } from '../../lib/imageUpload';
 
 interface Product {
   name: string;
@@ -21,6 +22,26 @@ interface Product {
   category: string;
   in_stock: boolean | null;
   price: string;
+}
+
+interface UploadedImage {
+  preview: string;
+  base64: string;
+  fileName: string;
+  fileSize: number;
+}
+
+const MIN_PRODUCT_PRICE = 1;
+
+function getPriceBelowMinimumMessage(priceStr: string): string | null {
+  const trimmed = priceStr.trim();
+  if (!trimmed) return null;
+  const n = Number.parseFloat(trimmed);
+  if (Number.isNaN(n)) return null;
+  if (n < MIN_PRODUCT_PRICE) {
+    return `Price must be at least $${MIN_PRODUCT_PRICE.toFixed(2)}.`;
+  }
+  return null;
 }
 
 const AddProductForm: React.FC = () => {
@@ -33,7 +54,15 @@ const AddProductForm: React.FC = () => {
     price: "",
   });
 
+  const [uploadedImage, setUploadedImage] = useState<UploadedImage | null>(null);
+  const [uploadError, setUploadError] = useState<string>("");
+
   const navigate = useNavigate();
+
+  const priceMinError = useMemo(
+    () => getPriceBelowMinimumMessage(product.price),
+    [product.price]
+  );
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -42,8 +71,46 @@ const AddProductForm: React.FC = () => {
     setProduct((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadError("");
+
+    const result = await processImageUpload(file);
+
+    if (result.error) {
+      setUploadError(result.error);
+      setUploadedImage(null);
+      return;
+    }
+
+    setUploadedImage({
+      preview: result.preview,
+      base64: result.base64,
+      fileName: result.fileName,
+      fileSize: result.fileSize,
+    });
+
+    // Set image_url to base64 for backend
+    setProduct((prev) => ({ ...prev, image_url: result.base64 }));
+  };
+
+  const handleRemoveImage = () => {
+    setUploadedImage(null);
+    setUploadError("");
+    setProduct((prev) => ({ ...prev, image_url: "" }));
+    // Reset file input
+    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    if (fileInput) fileInput.value = "";
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (getPriceBelowMinimumMessage(product.price)) {
+      return;
+    }
 
     const payload = {
       ...product,
@@ -218,33 +285,62 @@ const AddProductForm: React.FC = () => {
           </div>
 
           <div className="pb-1">
-            <label className="block text-sm font-medium text-gray-700 mb-1 text-left" data-testId="add-product-label-image-url">
-              Image URL
+            <label className="block text-sm font-medium text-gray-700 mb-1 text-left" data-testId="add-product-label-image">
+              Product Image
             </label>
-            <Input
-              name="image_url"
-              placeholder="e.g. https://images.google.com"
-              value={product.image_url}
-              onChange={handleChange}
-              className="w-full min-w-[280px] max-w-full px-4 py-2"
-              data-testId="new_product_image_url"
-              style={{
-                fontFamily: 'inherit',
-                fontSize: '1rem',
-                fontWeight: 400,
-                border: '1.5px solid #d1d5db',
-                outline: 'none',
-                transition: 'border-color 0.2s, box-shadow 0.2s',
-              }}
-              onFocus={e => {
-                e.currentTarget.style.border = '1.5px solid #6b7280';
-                e.currentTarget.style.boxShadow = '0 0 0 1.5px #6b7280';
-              }}
-              onBlur={e => {
-                e.currentTarget.style.border = '1.5px solid #d1d5db';
-                e.currentTarget.style.boxShadow = 'none';
-              }}
-            />
+
+            {!uploadedImage ? (
+              <div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                  id="image-upload"
+                  data-testId="product-image-upload"
+                />
+                <label
+                  htmlFor="image-upload"
+                  className="cursor-pointer inline-block px-4 py-2 bg-gray-100 border-2 border-gray-300 rounded hover:bg-gray-200"
+                  style={{
+                    fontFamily: 'inherit',
+                    fontSize: '1rem',
+                  }}
+                  data-testId="upload-button"
+                >
+                  Choose File
+                </label>
+                {uploadError && (
+                  <div className="text-red-500 text-sm mt-1" data-testId="upload-error">
+                    {uploadError}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <div className="border-2 border-gray-300 rounded p-2">
+                  <img
+                    src={uploadedImage.preview}
+                    alt="Preview"
+                    className="max-h-40 mx-auto"
+                    data-testId="image-preview"
+                  />
+                </div>
+                <div className="text-sm text-gray-600" data-testId="image-info">
+                  <div data-testId="file-name">{uploadedImage.fileName}</div>
+                  <div data-testId="file-size">{uploadedImage.fileSize} bytes</div>
+                </div>
+                <Button
+                  type="button"
+                  onClick={handleRemoveImage}
+                  className="w-full text-red-600"
+                  variant="outline"
+                  data-testId="remove-image-button"
+                >
+                  Remove Image
+                </Button>
+              </div>
+            )}
           </div>
 
           <div className="pb-1">
@@ -331,38 +427,63 @@ const AddProductForm: React.FC = () => {
           </div>
 
           <div className="pb-1">
-            <label className="block text-sm font-medium text-gray-700 mb-1 text-left" data-testId="add-product-label-price">
-              Price
+            <label
+              className="block text-sm font-medium text-gray-700 mb-1 text-left"
+              data-testId="add-product-label-price"
+              htmlFor="new_product_price"
+            >
+              Price <span className="font-normal text-gray-500">(minimum $1.00)</span>
             </label>
             <Input
+              id="new_product_price"
               name="price"
-              placeholder="e.g. 2499.99"
+              placeholder="e.g. 9.99 — minimum $1.00"
               type="number"
+              min={MIN_PRODUCT_PRICE}
+              step={0.01}
               value={product.price}
               onChange={handleChange}
               className="w-full min-w-[280px] max-w-full px-4 py-2"
               data-testId="new_product_price"
+              aria-invalid={priceMinError ? true : undefined}
+              aria-describedby={priceMinError ? "new_product_price_error" : undefined}
               style={{
                 fontFamily: 'inherit',
                 fontSize: '1rem',
                 fontWeight: 400,
-                border: '1.5px solid #d1d5db',
-                outline: 'none',
-                transition: 'border-color 0.2s, box-shadow 0.2s',
+                border: priceMinError
+                  ? "1.5px solid #ef4444"
+                  : "1.5px solid #d1d5db",
+                outline: "none",
+                transition: "border-color 0.2s, box-shadow 0.2s",
               }}
-              onFocus={e => {
-                e.currentTarget.style.border = '1.5px solid #6b7280';
-                e.currentTarget.style.boxShadow = '0 0 0 1.5px #6b7280';
+              onFocus={(e) => {
+                if (priceMinError) return;
+                e.currentTarget.style.border = "1.5px solid #6b7280";
+                e.currentTarget.style.boxShadow = "0 0 0 1.5px #6b7280";
               }}
-              onBlur={e => {
-                e.currentTarget.style.border = '1.5px solid #d1d5db';
-                e.currentTarget.style.boxShadow = 'none';
+              onBlur={(e) => {
+                e.currentTarget.style.border = priceMinError
+                  ? "1.5px solid #ef4444"
+                  : "1.5px solid #d1d5db";
+                e.currentTarget.style.boxShadow = "none";
               }}
             />
+            {priceMinError && (
+              <div
+                id="new_product_price_error"
+                className="text-red-500 text-sm mt-1"
+                data-testId="new_product_price_error"
+                role="alert"
+              >
+                {priceMinError}
+              </div>
+            )}
           </div>
 
           <Button
             type="submit"
+            disabled={!!priceMinError}
             className="w-full text-black mt-2"
             style={{
               background: '#f3f4f6', // light grey
