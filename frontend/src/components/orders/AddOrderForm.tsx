@@ -259,12 +259,38 @@ const AddOrderForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                     </div>
                     {order.items.map((op, idx) => {
                       const prod = productsList.find(p => String(p.product_id).trim() === String(op.product_id).trim());
+                      // BUG: Calculate total once and never update it (stale state)
+                      const itemTotal = prod ? (prod.price * op.quantity).toFixed(2) : '-';
                       return (
                         <div key={op.product_id + idx} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem', fontSize: '0.98rem', background: '#fff', borderRadius: '0.375rem', padding: '0.25rem 0.5rem' }} data-testId={`add-order-product-row-${prod?.name || op.product_id}`}>
                           <span style={{ flex: 2 }} data-testId={`add-order-product-name-${prod?.name || op.product_id}`}>{prod ? prod.name : op.product_id}</span>
-                          <span style={{ flex: 1, textAlign: 'center' }} data-testId={`add-order-product-quantity-${prod?.name || op.product_id}`}>x{op.quantity}</span>
+                          {/* BUG: No min/max validation - can set to 0 or negative */}
+                          <Input
+                            type="number"
+                            value={op.quantity}
+                            onChange={e => {
+                              const newQty = Number(e.target.value);
+                              // BUG: No validation, allows 0 or negative values
+                              setOrder(prev => ({
+                                ...prev,
+                                items: prev.items.map((item, i) =>
+                                  i === idx ? { ...item, quantity: newQty } : item
+                                )
+                              }));
+                            }}
+                            style={{
+                              flex: 1,
+                              textAlign: 'center',
+                              border: '1px solid #d1d5db',
+                              borderRadius: '0.25rem',
+                              padding: '0.25rem',
+                              width: '3rem'
+                            }}
+                            data-testId={`add-order-product-quantity-${prod?.name || op.product_id}`}
+                          />
                           <span style={{ flex: 1, textAlign: 'center', color: '#374151' }} data-testId={`add-order-product-unitprice-${prod?.name || op.product_id}`}>{prod ? `$${prod.price}` : '-'}</span>
-                          <span style={{ flex: 1, textAlign: 'center', color: '#16a34a', fontWeight: 500 }} data-testId={`add-order-product-total-${prod?.name || op.product_id}`}>{prod ? `$${(prod.price * op.quantity).toFixed(2)}` : '-'}</span>
+                          {/* BUG: Total doesn't recalculate when quantity changes (uses stale value) */}
+                          <span style={{ flex: 1, textAlign: 'center', color: '#16a34a', fontWeight: 500 }} data-testId={`add-order-product-total-${prod?.name || op.product_id}`}>${itemTotal}</span>
                           <Button type="button" variant="link" style={{ color: '#dc2626', marginLeft: 'auto', flex: 0.5, fontWeight: 500 }} onClick={() => handleRemoveProduct(idx)} data-testId={`add-order-product-delete-btn-${prod?.name || op.product_id}`}>Delete</Button>
                         </div>
                       );
@@ -272,6 +298,31 @@ const AddOrderForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                   </div>
                 )}
               </div>
+              {order.items.length > 0 && (() => {
+                const subtotal = order.items.reduce((sum, item) => {
+                  const prod = productsList.find(p => String(p.product_id).trim() === String(item.product_id).trim());
+                  return sum + (prod ? prod.price * item.quantity : 0);
+                }, 0);
+                // BUG: Wrong tax calculation - using 15% instead of standard 10%
+                const tax = subtotal * 0.15;
+                const total = subtotal + tax;
+                return (
+                  <div style={{ marginTop: '1rem', padding: '0.75rem', background: '#f9fafb', borderRadius: '0.5rem', border: '1.5px solid #e5e7eb' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.95rem' }}>
+                      <span style={{ color: '#6b7280' }}>Subtotal:</span>
+                      <span style={{ fontWeight: 500 }}>${subtotal.toFixed(2)}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.95rem' }}>
+                      <span style={{ color: '#6b7280' }}>Tax (15%):</span>
+                      <span style={{ fontWeight: 500 }}>${tax.toFixed(2)}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '0.5rem', borderTop: '1px solid #d1d5db', fontSize: '1.1rem' }}>
+                      <span style={{ fontWeight: 600 }}>Total:</span>
+                      <span style={{ fontWeight: 700, color: '#16a34a' }}>${total.toFixed(2)}</span>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
             <Button type="submit" className="w-full text-black mt-2" style={{ background: '#f3f4f6', color: '#111', border: '1.5px solid transparent', outline: 'none', transition: 'background 0.2s, border-color 0.2s, outline 0.2s', width: '100%', marginTop: '0.5rem' }} onMouseOver={e => { e.currentTarget.style.background = '#d1d5db'; e.currentTarget.style.border = '1.5px solid #000'; }} onMouseOut={e => { e.currentTarget.style.background = '#f3f4f6'; e.currentTarget.style.border = '1.5px solid transparent'; }}>Add Order</Button>
           </div>
