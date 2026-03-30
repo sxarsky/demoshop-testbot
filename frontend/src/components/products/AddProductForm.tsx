@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import "@/styles/select-zindex-workaround.css";
 import { useNavigate } from "react-router-dom";
 import { getSessionIdFromCookie } from '../../lib/utils';
 import { apiUrl } from '../../config';
+import { processImageFile, formatFileSize } from '../../lib/imageUpload';
 
 interface Product {
   name: string;
@@ -33,7 +34,40 @@ const AddProductForm: React.FC = () => {
     price: "",
   });
 
+  const [imageFileName, setImageFileName] = useState<string>("");
+  const [imageFileSize, setImageFileSize] = useState<number>(0);
+  const [imagePreview, setImagePreview] = useState<string>("");
+  const [imageError, setImageError] = useState<string>("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const navigate = useNavigate();
+
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImageError("");
+    try {
+      const result = await processImageFile(file);
+      setImagePreview(result.dataUrl);
+      setImageFileName(result.fileName);
+      setImageFileSize(result.fileSize);
+      setProduct((prev) => ({ ...prev, image_url: result.dataUrl }));
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to process image.";
+      setImageError(message);
+      // Reset the input so the same file can be re-selected after fixing the error
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setImagePreview("");
+    setImageFileName("");
+    setImageFileSize(0);
+    setImageError("");
+    setProduct((prev) => ({ ...prev, image_url: "" }));
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -218,33 +252,172 @@ const AddProductForm: React.FC = () => {
           </div>
 
           <div className="pb-1">
-            <label className="block text-sm font-medium text-gray-700 mb-1 text-left" data-testId="add-product-label-image-url">
-              Image URL
+            <label className="block text-sm font-medium text-gray-700 mb-1 text-left" data-testId="add-product-label-image">
+              Product Image
             </label>
-            <Input
-              name="image_url"
-              placeholder="e.g. https://images.google.com"
-              value={product.image_url}
-              onChange={handleChange}
-              className="w-full min-w-[280px] max-w-full px-4 py-2"
-              data-testId="new_product_image_url"
-              style={{
-                fontFamily: 'inherit',
-                fontSize: '1rem',
-                fontWeight: 400,
-                border: '1.5px solid #d1d5db',
-                outline: 'none',
-                transition: 'border-color 0.2s, box-shadow 0.2s',
-              }}
-              onFocus={e => {
-                e.currentTarget.style.border = '1.5px solid #6b7280';
-                e.currentTarget.style.boxShadow = '0 0 0 1.5px #6b7280';
-              }}
-              onBlur={e => {
-                e.currentTarget.style.border = '1.5px solid #d1d5db';
-                e.currentTarget.style.boxShadow = 'none';
-              }}
+
+            {/* Hidden file input */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              style={{ display: "none" }}
+              onChange={handleImageChange}
+              data-testId="new_product_image_input"
             />
+
+            {imagePreview ? (
+              /* Preview card */
+              <div
+                data-testId="new_product_image_preview_card"
+                style={{
+                  border: '1.5px solid #d1d5db',
+                  borderRadius: '0.5rem',
+                  padding: '0.75rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.75rem',
+                  background: '#f9fafb',
+                }}
+              >
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  data-testId="new_product_image_preview"
+                  style={{
+                    width: '3.5rem',
+                    height: '3.5rem',
+                    objectFit: 'cover',
+                    borderRadius: '0.375rem',
+                    flexShrink: 0,
+                    border: '1px solid #e5e7eb',
+                  }}
+                />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p
+                    data-testId="new_product_image_filename"
+                    style={{
+                      fontSize: '0.875rem',
+                      fontWeight: 500,
+                      color: '#111827',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      margin: 0,
+                    }}
+                  >
+                    {imageFileName}
+                  </p>
+                  <p
+                    data-testId="new_product_image_filesize"
+                    style={{ fontSize: '0.75rem', color: '#6b7280', margin: '0.125rem 0 0' }}
+                  >
+                    {formatFileSize(imageFileSize)}
+                  </p>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem', flexShrink: 0 }}>
+                  <button
+                    type="button"
+                    data-testId="new_product_image_replace_btn"
+                    onClick={() => fileInputRef.current?.click()}
+                    style={{
+                      fontSize: '0.75rem',
+                      color: '#374151',
+                      background: '#fff',
+                      border: '1px solid #d1d5db',
+                      borderRadius: '0.375rem',
+                      padding: '0.25rem 0.625rem',
+                      cursor: 'pointer',
+                      transition: 'border-color 0.2s',
+                    }}
+                    onMouseOver={e => (e.currentTarget.style.borderColor = '#6b7280')}
+                    onMouseOut={e => (e.currentTarget.style.borderColor = '#d1d5db')}
+                  >
+                    Replace
+                  </button>
+                  <button
+                    type="button"
+                    data-testId="new_product_image_remove_btn"
+                    onClick={handleRemoveImage}
+                    style={{
+                      fontSize: '0.75rem',
+                      color: '#dc2626',
+                      background: '#fff',
+                      border: '1px solid #fca5a5',
+                      borderRadius: '0.375rem',
+                      padding: '0.25rem 0.625rem',
+                      cursor: 'pointer',
+                      transition: 'border-color 0.2s',
+                    }}
+                    onMouseOver={e => (e.currentTarget.style.borderColor = '#dc2626')}
+                    onMouseOut={e => (e.currentTarget.style.borderColor = '#fca5a5')}
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            ) : (
+              /* Upload button */
+              <button
+                type="button"
+                data-testId="new_product_image_upload_btn"
+                onClick={() => fileInputRef.current?.click()}
+                style={{
+                  width: '100%',
+                  minWidth: '280px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.375rem',
+                  padding: '1.25rem 1rem',
+                  border: '1.5px dashed #d1d5db',
+                  borderRadius: '0.5rem',
+                  background: '#f9fafb',
+                  cursor: 'pointer',
+                  transition: 'border-color 0.2s, background 0.2s',
+                }}
+                onMouseOver={e => {
+                  e.currentTarget.style.borderColor = '#6b7280';
+                  e.currentTarget.style.background = '#f3f4f6';
+                }}
+                onMouseOut={e => {
+                  e.currentTarget.style.borderColor = '#d1d5db';
+                  e.currentTarget.style.background = '#f9fafb';
+                }}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24" height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#6b7280"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <polyline points="16 16 12 12 8 16" />
+                  <line x1="12" y1="12" x2="12" y2="21" />
+                  <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3" />
+                </svg>
+                <span style={{ fontSize: '0.875rem', fontWeight: 500, color: '#374151' }}>
+                  Click to upload image
+                </span>
+                <span style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
+                  JPG, PNG, WEBP &mdash; max 5 MB
+                </span>
+              </button>
+            )}
+
+            {imageError && (
+              <p
+                data-testId="new_product_image_error"
+                style={{ fontSize: '0.8rem', color: '#dc2626', marginTop: '0.375rem' }}
+              >
+                {imageError}
+              </p>
+            )}
           </div>
 
           <div className="pb-1">
