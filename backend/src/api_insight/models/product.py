@@ -24,6 +24,7 @@ class ProductBase(BaseModel):
     image_url: str = Field(min_length=1, pattern=r'^[A-Za-z]+.*\s*$', examples=['https://images.app.goo.gl/cgcHpeehRdu5osot8', 'https://images.app.goo.gl/cgcHpeehRdu5osot8'])
     category: str = Field(min_length=1, pattern=r'^[A-Za-z]+.*\s*$', examples=['Toys', 'Stuffed Animals'])
     in_stock: bool = Field(default=False, examples=[True, False])
+    stock_quantity: int = Field(default=0, ge=0, examples=[100, 50])
 
 class Product(ProductBase):
     """
@@ -65,6 +66,7 @@ class ProductUpdate(BaseModel):
     image_url: str = Field(default=None, min_length=1, pattern=r'^[A-Za-z]+.*\s*$', json_schema_extra={'example': 'https://images.app.goo.gl/cgcHpeehRdu5osot8'})
     category: str = Field(default=None, min_length=1, pattern=r'^[A-Za-z]+.*\s*$', json_schema_extra={'example': 'Toys'})
     in_stock: bool = Field(default=False, json_schema_extra={'example': True})
+    stock_quantity: Optional[int] = Field(default=None, ge=0, json_schema_extra={'example': 100})
 
 class ProductUpdateResponse(ProductBase):
     """

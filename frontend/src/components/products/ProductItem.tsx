@@ -8,6 +8,8 @@ type Product = {
   name: string;
   price: number;
   image_url?: string;
+  in_stock?: boolean;
+  stock_quantity?: number;
 };
 
 interface ProductItemProps {
@@ -139,6 +141,24 @@ export default function ProductItem({ product, horizontal = false, minHeight, 'd
         </div>
         <div className="product-price-container">
           <p data-testId={`product-${product.name.replace(/\s+/g, '-')}-price`} style={{ fontSize: '1.05rem', color: '#0f766e', fontWeight: 500, margin: 0, textAlign: 'center' }}>${product.price.toFixed(2)}</p>
+        </div>
+        {/* Stock Badge */}
+        <div style={{ marginTop: '0.25rem' }} data-testId={`product-${product.name.replace(/\s+/g, '-')}-stock-badge`}>
+          {product.in_stock ? (
+            <span
+              style={{ background: '#dcfce7', color: '#16a34a', fontSize: '0.75rem', fontWeight: 600, padding: '0.2rem 0.6rem', borderRadius: '9999px' }}
+              data-testId={`product-${product.name.replace(/\s+/g, '-')}-instock`}
+            >
+              In Stock
+            </span>
+          ) : (
+            <span
+              style={{ background: '#fee2e2', color: '#dc2626', fontSize: '0.75rem', fontWeight: 600, padding: '0.2rem 0.6rem', borderRadius: '9999px' }}
+              data-testId={`product-${product.name.replace(/\s+/g, '-')}-outofstock`}
+            >
+              Out of Stock
+            </span>
+          )}
         </div>
       </div>
       {/* View Details */}

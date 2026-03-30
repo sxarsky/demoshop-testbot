@@ -54,6 +54,7 @@ export default function ProductDetail() {
       const payload = {
         ...formState,
         price: parseFloat(formState.price),
+        stock_quantity: parseInt(formState.stock_quantity) || 0,
         in_stock: formState.in_stock === true || formState.in_stock === 'true',
         image_url: formState.image_url || '',
       };
@@ -169,9 +170,28 @@ export default function ProductDetail() {
                 </span>
               )}
             </div>
+            {/* Stock Quantity */}
+            <div data-testId="product-detail-stockquantity">
+              <label className="block text-sm mb-1" style={{ color: '#9ca3af', fontWeight: 'normal', textAlign: 'left' }} data-testId="product-detail-label-stockquantity">Stock Quantity</label>
+              {editMode ? (
+                <input
+                  className="w-full border rounded px-3 py-2 text-gray-900"
+                  name="stock_quantity"
+                  type="number"
+                  min={0}
+                  value={formState?.stock_quantity ?? 0}
+                  onChange={handleInputChange}
+                  disabled={saving}
+                  data-testId="product-detail-input-stockquantity"
+                />
+              ) : (
+                <div style={{ fontSize: '1.125rem', fontWeight: 500 }} className="text-gray-900 mt-1" data-testId="product-detail-value-stockquantity">
+                  {product.stock_quantity ?? 0} units
+                </div>
+              )}
+            </div>
             {/* Description */}
-            <div data-testId="product-detail-description">
-              <label className="block text-sm mb-1" style={{ color: '#9ca3af', fontWeight: 'normal', textAlign: 'left' }} data-testId="product-detail-label-description">Description</label>
+            <div data-testId="product-detail-description">              <label className="block text-sm mb-1" style={{ color: '#9ca3af', fontWeight: 'normal', textAlign: 'left' }} data-testId="product-detail-label-description">Description</label>
               {editMode ? (
                 <textarea
                   className="w-full border rounded px-3 py-2 text-gray-900"
