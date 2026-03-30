@@ -5,6 +5,7 @@ import ProductItem from "../products/ProductItem";
 import { NavBar } from "@/components/ui/navbar";
 import { getSessionIdFromCookie } from '../../lib/utils';
 import { apiUrl } from '../../config';
+import EditOrderForm from './EditOrderForm';
 
 export default function OrderDetail() {
   const { order_id } = useParams<{ order_id: string }>();
@@ -14,6 +15,7 @@ export default function OrderDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [cancelling, setCancelling] = useState(false);
+  const [showEditForm, setShowEditForm] = useState(false);
 
   useEffect(() => {
     if (!order_id) return;
@@ -47,6 +49,25 @@ export default function OrderDetail() {
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, [order_id]);
+
+  const handleOrderUpdate = (updatedOrder: any) => {
+    setOrder(updatedOrder);
+    // Refresh product details for the updated item list
+    const sessionId = getSessionIdFromCookie();
+    if (updatedOrder.items && updatedOrder.items.length > 0) {
+      Promise.all(
+        updatedOrder.items.map((item: any) =>
+          fetch(apiUrl(`/api/v1/products/${item.product_id}`), {
+            headers: { 'Authorization': `Bearer ${sessionId}` },
+          })
+            .then((res) => (res.ok ? res.json() : null))
+            .catch(() => null)
+        )
+      ).then((prods) => setProducts(prods.filter(Boolean)));
+    } else {
+      setProducts([]);
+    }
+  };
 
   const handleCancelOrder = async () => {
     if (!order_id) return;
@@ -131,6 +152,29 @@ export default function OrderDetail() {
         <div className="flex flex-col items-center" style={{ marginTop: '0.5rem', gap: '1rem', alignItems: 'center', justifyContent: 'center', display: 'flex' }} data-testId="order-detail-buttons">
           {order.status !== 'cancelled' && (
             <Button
+              className="w-fit"
+              onClick={() => setShowEditForm(true)}
+              style={{
+                color: '#111',
+                background: '#f3f4f6',
+                border: '1.5px solid transparent',
+                transition: 'background 0.2s, border-color 0.2s',
+              }}
+              onMouseOver={e => {
+                e.currentTarget.style.background = '#d1d5db';
+                e.currentTarget.style.borderColor = '#111';
+              }}
+              onMouseOut={e => {
+                e.currentTarget.style.background = '#f3f4f6';
+                e.currentTarget.style.borderColor = 'transparent';
+              }}
+              data-testId="order-detail-edit-btn"
+            >
+              Edit Order
+            </Button>
+          )}
+          {order.status !== 'cancelled' && (
+            <Button
               variant="destructive"
               className="w-fit"
               onClick={handleCancelOrder}
@@ -178,6 +222,13 @@ export default function OrderDetail() {
           </Button>
         </div>
       </div>
-    </div>
+    {showEditForm && order && (
+      <EditOrderForm
+        order={order}
+        onClose={() => setShowEditForm(false)}
+        onUpdate={handleOrderUpdate}
+      />
+    )}
+  </div>
   );
 }
