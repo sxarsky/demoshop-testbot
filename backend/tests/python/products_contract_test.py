@@ -62,6 +62,7 @@ def test_products_get():
     assert skyramp.get_response_value(products_GET_response, "0.category") is not None
     assert skyramp.get_response_value(products_GET_response, "0.created_at") is not None
     assert skyramp.get_response_value(products_GET_response, "0.description") is not None
+    assert skyramp.get_response_value(products_GET_response, "0.stock_quantity") is not None
 
 
 
@@ -114,6 +115,7 @@ def test_products_post():
     assert skyramp.get_response_value(products_POST_response, "category") is not None
     assert skyramp.get_response_value(products_POST_response, "created_at") is not None
     assert skyramp.get_response_value(products_POST_response, "description") is not None
+    assert skyramp.get_response_value(products_POST_response, "stock_quantity") is not None
 
 
 
@@ -159,6 +161,7 @@ def test_products_product_id_get():
     assert skyramp.get_response_value(products_product_id_GET_response, "category") is not None
     assert skyramp.get_response_value(products_product_id_GET_response, "created_at") is not None
     assert skyramp.get_response_value(products_product_id_GET_response, "description") is not None
+    assert skyramp.get_response_value(products_product_id_GET_response, "stock_quantity") is not None
 
 
 
@@ -215,6 +218,7 @@ def test_products_product_id_put():
     assert skyramp.get_response_value(products_product_id_PUT_response, "category") is not None
     assert skyramp.get_response_value(products_product_id_PUT_response, "created_at") is not None
     assert skyramp.get_response_value(products_product_id_PUT_response, "description") is not None
+    assert skyramp.get_response_value(products_product_id_PUT_response, "stock_quantity") is not None
 
 
 

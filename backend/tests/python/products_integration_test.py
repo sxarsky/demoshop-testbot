@@ -39,6 +39,7 @@ def test_integration():
     )
     # Generated Assertions
     assert products_POST_response.status_code == 201
+    assert skyramp.get_response_value(products_POST_response, "stock_quantity") is not None
 
     max_retries = 10
     sleep_time = 5
@@ -77,6 +78,7 @@ def test_integration():
     )
     # Generated Assertions
     assert products_product_id_PUT_response.status_code == 200
+    assert skyramp.get_response_value(products_product_id_PUT_response, "stock_quantity") is not None
 
     # Execute Request
     products_product_id_DELETE_response = client.send_request(
