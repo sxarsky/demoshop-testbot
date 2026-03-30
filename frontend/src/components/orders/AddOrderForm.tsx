@@ -75,6 +75,23 @@ const AddOrderForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     }));
   };
 
+  const handleQuantityChange = (idx: number, value: number) => {
+    if (value < 1 || !Number.isFinite(value)) return;
+    setOrder(prev => ({
+      ...prev,
+      items: prev.items.map((item, i) =>
+        i === idx ? { ...item, quantity: value } : item
+      ),
+    }));
+  };
+
+  const subtotal = order.items.reduce((sum, item) => {
+    const prod = productsList.find(p => String(p.product_id).trim() === String(item.product_id).trim());
+    return sum + (prod ? prod.price * item.quantity : 0);
+  }, 0);
+  const tax = subtotal * 0.10;
+  const total = subtotal + tax;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -262,7 +279,32 @@ const AddOrderForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                       return (
                         <div key={op.product_id + idx} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem', fontSize: '0.98rem', background: '#fff', borderRadius: '0.375rem', padding: '0.25rem 0.5rem' }} data-testId={`add-order-product-row-${prod?.name || op.product_id}`}>
                           <span style={{ flex: 2 }} data-testId={`add-order-product-name-${prod?.name || op.product_id}`}>{prod ? prod.name : op.product_id}</span>
-                          <span style={{ flex: 1, textAlign: 'center' }} data-testId={`add-order-product-quantity-${prod?.name || op.product_id}`}>x{op.quantity}</span>
+                          <span style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }} data-testId={`add-order-product-quantity-${prod?.name || op.product_id}`}>
+                            <Input
+                              type="number"
+                              min={1}
+                              value={op.quantity}
+                              onChange={e => {
+                                const val = parseInt(e.target.value, 10);
+                                handleQuantityChange(idx, val > 0 ? val : 1);
+                              }}
+                              onBlur={e => {
+                                const val = parseInt(e.target.value, 10);
+                                if (!val || val < 1) handleQuantityChange(idx, 1);
+                              }}
+                              style={{
+                                border: '1.5px solid #d1d5db',
+                                fontSize: '0.9rem',
+                                width: '3.5rem',
+                                textAlign: 'center',
+                                paddingLeft: 0,
+                                paddingRight: 0,
+                                borderRadius: '0.375rem',
+                                height: '2rem',
+                              }}
+                              data-testId={`add-order-product-quantity-input-${prod?.name || op.product_id}`}
+                            />
+                          </span>
                           <span style={{ flex: 1, textAlign: 'center', color: '#374151' }} data-testId={`add-order-product-unitprice-${prod?.name || op.product_id}`}>{prod ? `$${prod.price}` : '-'}</span>
                           <span style={{ flex: 1, textAlign: 'center', color: '#16a34a', fontWeight: 500 }} data-testId={`add-order-product-total-${prod?.name || op.product_id}`}>{prod ? `$${(prod.price * op.quantity).toFixed(2)}` : '-'}</span>
                           <Button type="button" variant="link" style={{ color: '#dc2626', marginLeft: 'auto', flex: 0.5, fontWeight: 500 }} onClick={() => handleRemoveProduct(idx)} data-testId={`add-order-product-delete-btn-${prod?.name || op.product_id}`}>Delete</Button>
@@ -272,6 +314,22 @@ const AddOrderForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                   </div>
                 )}
               </div>
+              {order.items.length > 0 && (
+                <div style={{ border: '1.5px solid #e5e7eb', borderRadius: '0.5rem', background: '#f9fafb', padding: '0.75rem 1rem', marginTop: '0.5rem' }} data-testId="add-order-summary-box">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.95rem', color: '#374151', marginBottom: '0.35rem' }} data-testId="add-order-summary-subtotal">
+                    <span>Subtotal</span>
+                    <span>${subtotal.toFixed(2)}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.95rem', color: '#6b7280', marginBottom: '0.35rem' }} data-testId="add-order-summary-tax">
+                    <span>Tax (10%)</span>
+                    <span>${tax.toFixed(2)}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.05rem', fontWeight: 700, color: '#111827', borderTop: '1.5px solid #e5e7eb', paddingTop: '0.35rem', marginTop: '0.1rem' }} data-testId="add-order-summary-total">
+                    <span>Total</span>
+                    <span>${total.toFixed(2)}</span>
+                  </div>
+                </div>
+              )}
             </div>
             <Button type="submit" className="w-full text-black mt-2" style={{ background: '#f3f4f6', color: '#111', border: '1.5px solid transparent', outline: 'none', transition: 'background 0.2s, border-color 0.2s, outline 0.2s', width: '100%', marginTop: '0.5rem' }} onMouseOver={e => { e.currentTarget.style.background = '#d1d5db'; e.currentTarget.style.border = '1.5px solid #000'; }} onMouseOut={e => { e.currentTarget.style.background = '#f3f4f6'; e.currentTarget.style.border = '1.5px solid transparent'; }}>Add Order</Button>
           </div>
