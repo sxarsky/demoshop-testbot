@@ -5,6 +5,7 @@ import ProductItem from "../products/ProductItem";
 import { NavBar } from "@/components/ui/navbar";
 import { getSessionIdFromCookie } from '../../lib/utils';
 import { apiUrl } from '../../config';
+import CancelOrderModal from "./CancelOrderModal";
 
 export default function OrderDetail() {
   const { order_id } = useParams<{ order_id: string }>();
@@ -14,6 +15,7 @@ export default function OrderDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [cancelling, setCancelling] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
 
   useEffect(() => {
     if (!order_id) return;
@@ -133,7 +135,7 @@ export default function OrderDetail() {
             <Button
               variant="destructive"
               className="w-fit"
-              onClick={handleCancelOrder}
+              onClick={() => setShowCancelModal(true)}
               disabled={cancelling}
               style={{
                 color: '#fff',
@@ -178,6 +180,21 @@ export default function OrderDetail() {
           </Button>
         </div>
       </div>
+      {showCancelModal && (
+        <CancelOrderModal
+          order={{
+            order_id: order.order_id,
+            customer_email: order.customer_email,
+            total_amount: order.total_amount,
+          }}
+          onConfirm={async () => {
+            setShowCancelModal(false);
+            await handleCancelOrder();
+          }}
+          onClose={() => setShowCancelModal(false)}
+          isLoading={cancelling}
+        />
+      )}
     </div>
   );
 }
