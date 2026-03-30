@@ -3,7 +3,7 @@ Order models for the API.
 """
 from datetime import datetime
 from enum import Enum
-from typing import List
+from typing import List, Optional
 from pydantic import BaseModel, Field, EmailStr
 
 class OrderStatus(str, Enum):
@@ -13,6 +13,12 @@ class OrderStatus(str, Enum):
     SHIPPED = "shipped"
     DELIVERED = "delivered"
     CANCELLED = "cancelled"
+
+class DiscountType(str, Enum):
+    """Discount type enumeration."""
+    NONE = "none"
+    PERCENTAGE = "percentage"
+    FIXED = "fixed"
 
 class OrderItemBase(BaseModel):
     """Model for order items with common fields."""
@@ -48,6 +54,8 @@ class Order(OrderBase):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     items: List[OrderItem]
+    discount_type: str = Field(default="none")
+    discount_value: float = Field(default=0.0)
 
 class OrderCreate(BaseModel):
     """Model for creating new orders in DB."""
@@ -73,6 +81,8 @@ class OrderRead(OrderBase):
     items: List[OrderItemRead]
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
+    discount_type: str = Field(default="none")
+    discount_value: float = Field(default=0.0)
     model_config = {
         "json_schema_extra": {
             "example": {
@@ -88,7 +98,9 @@ class OrderRead(OrderBase):
                     }
                 ],
                 "created_at": "2022-01-01T00:00:00",
-                "updated_at": "2022-01-01T00:00:00"
+                "updated_at": "2022-01-01T00:00:00",
+                "discount_type": "none",
+                "discount_value": 0.0
             }
         }
     }
@@ -96,3 +108,11 @@ class OrderRead(OrderBase):
 class OrderCancel(BaseModel):
     """Model for cancelling an order."""
     message: str = Field(default="Order cancelled successfully")
+
+class OrderUpdate(BaseModel):
+    """Model for updating an existing order."""
+    customer_email: Optional[EmailStr] = None
+    status: Optional[OrderStatus] = None
+    items: Optional[List[OrderItemCreate]] = None
+    discount_type: Optional[DiscountType] = None
+    discount_value: Optional[float] = Field(default=None, ge=0)
