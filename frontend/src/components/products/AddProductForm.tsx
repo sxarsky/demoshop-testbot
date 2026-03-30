@@ -32,6 +32,7 @@ const AddProductForm: React.FC = () => {
     in_stock: null,
     price: "",
   });
+  const [priceError, setPriceError] = useState<string>("");
 
   const navigate = useNavigate();
 
@@ -40,10 +41,26 @@ const AddProductForm: React.FC = () => {
   ) => {
     const { name, value } = e.target;
     setProduct((prev) => ({ ...prev, [name]: value }));
+    if (name === "price") {
+      const parsed = parseFloat(value);
+      if (value === "" || isNaN(parsed)) {
+        setPriceError("");
+      } else if (parsed < 1.0) {
+        setPriceError("Price must be at least $1.00");
+      } else {
+        setPriceError("");
+      }
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const parsedPrice = parseFloat(product.price);
+    if (isNaN(parsedPrice) || parsedPrice < 1.0) {
+      setPriceError("Price must be at least $1.00");
+      return;
+    }
 
     const payload = {
       ...product,
@@ -332,12 +349,14 @@ const AddProductForm: React.FC = () => {
 
           <div className="pb-1">
             <label className="block text-sm font-medium text-gray-700 mb-1 text-left" data-testId="add-product-label-price">
-              Price
+              Price <span className="text-gray-400 font-normal">(min $1.00)</span>
             </label>
             <Input
               name="price"
               placeholder="e.g. 2499.99"
               type="number"
+              min="1"
+              step="0.01"
               value={product.price}
               onChange={handleChange}
               className="w-full min-w-[280px] max-w-full px-4 py-2"
@@ -346,19 +365,28 @@ const AddProductForm: React.FC = () => {
                 fontFamily: 'inherit',
                 fontSize: '1rem',
                 fontWeight: 400,
-                border: '1.5px solid #d1d5db',
+                border: priceError ? '1.5px solid #ef4444' : '1.5px solid #d1d5db',
                 outline: 'none',
                 transition: 'border-color 0.2s, box-shadow 0.2s',
               }}
               onFocus={e => {
-                e.currentTarget.style.border = '1.5px solid #6b7280';
-                e.currentTarget.style.boxShadow = '0 0 0 1.5px #6b7280';
+                e.currentTarget.style.border = priceError ? '1.5px solid #ef4444' : '1.5px solid #6b7280';
+                e.currentTarget.style.boxShadow = priceError ? '0 0 0 1.5px #ef4444' : '0 0 0 1.5px #6b7280';
               }}
               onBlur={e => {
-                e.currentTarget.style.border = '1.5px solid #d1d5db';
+                e.currentTarget.style.border = priceError ? '1.5px solid #ef4444' : '1.5px solid #d1d5db';
                 e.currentTarget.style.boxShadow = 'none';
               }}
             />
+            {priceError && (
+              <p
+                className="text-sm mt-1 text-left"
+                style={{ color: '#ef4444' }}
+                data-testId="new_product_price_error"
+              >
+                {priceError}
+              </p>
+            )}
           </div>
 
           <Button
