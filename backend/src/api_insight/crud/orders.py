@@ -7,6 +7,7 @@ from redis import Redis
 from redis.commands.json.path import Path
 from redis.commands.search.query import Query, NumericFilter
 from api_insight.models.order import Order, OrderStatus, OrderItem, OrderCreate
+from api_insight.models.product import ProductUpdate
 from api_insight.crud import products
 from api_insight.core.cache import get_or_create_orders_index, get_or_create_order_items_index
 from api_insight.core.config import get_settings
@@ -75,6 +76,14 @@ def create_order(cache: Redis, session_id: str, order: OrderCreate) -> Order:
         if not product:
             raise ValueError(f"Product with id {item.product_id} not found")
 
+        # Check stock availability
+        available_stock = product.get("stock_quantity", 0)
+        if available_stock < item.quantity:
+            raise ValueError(
+                f"Insufficient stock for product '{product.get('name', item.product_id)}'. "
+                f"Available: {available_stock}, Requested: {item.quantity}"
+            )
+
         # Create order item
         order_item_id = set_order_item_id(cache, key)
         order_item = OrderItem(
@@ -87,6 +96,14 @@ def create_order(cache: Redis, session_id: str, order: OrderCreate) -> Order:
         order_item_encoded = jsonable_encoder(order_item.model_dump())
         cache.json().set(f'{key}:orderitems:{order_item_id}', Path.root_path(), order_item_encoded)
         cache.expire(f'{key}:orderitems:{order_item_id}', settings.KEY_TTL_SECONDS)
+
+        # Decrement product stock
+        new_stock = available_stock - item.quantity
+        products.update_product(cache, key, item.product_id, ProductUpdate(
+            stock_quantity=new_stock,
+            in_stock=new_stock > 0
+        ))
+
         # Update total amount
         total_amount += product["price"] * item.quantity
 

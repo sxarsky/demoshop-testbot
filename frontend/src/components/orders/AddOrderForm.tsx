@@ -18,6 +18,8 @@ interface Product {
   product_id: string;
   name: string;
   price: number;
+  in_stock: boolean;
+  stock_quantity: number;
 }
 
 interface OrderProduct {
@@ -60,6 +62,17 @@ const AddOrderForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     if (!addingProduct.product_id || addingProduct.quantity < 1) return;
     // Prevent duplicate products
     if (order.items.some(p => p.product_id === addingProduct.product_id)) return;
+    // Validate against available stock
+    const selectedProduct = productsList.find(p => String(p.product_id) === String(addingProduct.product_id));
+    if (selectedProduct && (!selectedProduct.in_stock || selectedProduct.stock_quantity === 0)) {
+      setError(`"${selectedProduct.name}" is out of stock.`);
+      return;
+    }
+    if (selectedProduct && addingProduct.quantity > selectedProduct.stock_quantity) {
+      setError(`Only ${selectedProduct.stock_quantity} unit(s) of "${selectedProduct.name}" available.`);
+      return;
+    }
+    setError(null);
     console.log("Adding product to order:", addingProduct);
     setOrder(prev => ({
       ...prev,
@@ -218,8 +231,14 @@ const AddOrderForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                       {[...productsList]
                         .sort((a, b) => a.name.localeCompare(b.name))
                         .map(p => (
-                          <SelectItem key={p.product_id} value={p.product_id} style={{ paddingLeft: '0.5rem', borderBottom: '1px solid #e5e7eb' }} data-testId={`add-order-product-option-${p.name}`}>
-                            {p.name} (${p.price})
+                          <SelectItem
+                            key={p.product_id}
+                            value={p.product_id}
+                            disabled={!p.in_stock || p.stock_quantity === 0}
+                            style={{ paddingLeft: '0.5rem', borderBottom: '1px solid #e5e7eb', opacity: (!p.in_stock || p.stock_quantity === 0) ? 0.4 : 1 }}
+                            data-testId={`add-order-product-option-${p.name}`}
+                          >
+                            {p.name} (${p.price}){!p.in_stock || p.stock_quantity === 0 ? ' — Out of Stock' : ` — ${p.stock_quantity} left`}
                           </SelectItem>
                         ))}
                     </SelectContent>

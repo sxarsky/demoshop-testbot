@@ -33,6 +33,9 @@ async def create_order(
         db_order.items = orders.get_order_items(cache, session_id, db_order.order_id)
         return db_order
     except ValueError as exc:
+        error_msg = str(exc)
+        if "Insufficient stock" in error_msg:
+            raise ResourceNotFoundException(status_code=400, detail=error_msg) from exc
         raise ResourceNotFoundException(status_code=404, detail="Invalid product id") from exc
 
 @router.get("", response_model=List[OrderRead],

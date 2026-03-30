@@ -9,7 +9,8 @@
             "in_stock": 1,
             "product_id": 1,
             "created_at": "2025-06-10 21:27:14.603889",
-            "updated_at": "2025-06-10 21:27:14.603893"
+            "updated_at": "2025-06-10 21:27:14.603893",
+            "stock_quantity": 50
         },
         {
             "name": "Apple Airpods",
@@ -20,7 +21,8 @@
             "in_stock": 1,
             "product_id": 2,
             "created_at": "2025-06-10 21:27:14.603932",
-            "updated_at": "2025-06-10 21:27:14.603935"
+            "updated_at": "2025-06-10 21:27:14.603935",
+            "stock_quantity": 75
         },
         {
             "name": "Apple iWatch",
@@ -31,7 +33,8 @@
             "in_stock": 1,
             "product_id": 3,
             "created_at": "2025-06-10 21:27:14.603970",
-            "updated_at": "2025-06-10 21:27:14.603974"
+            "updated_at": "2025-06-10 21:27:14.603974",
+            "stock_quantity": 30
         },
         {
             "name": "Rayban Sunglasses",
@@ -42,7 +45,8 @@
             "in_stock": 1,
             "product_id": 4,
             "created_at": "2025-06-10 21:27:14.604008",
-            "updated_at": "2025-06-10 21:27:14.604011"
+            "updated_at": "2025-06-10 21:27:14.604011",
+            "stock_quantity": 120
         },
         {
             "name": "Adidas Running Shoes",
@@ -53,7 +57,8 @@
             "in_stock": 1,
             "product_id": 5,
             "created_at": "2025-06-10 21:27:14.604047",
-            "updated_at": "2025-06-10 21:27:14.604051"
+            "updated_at": "2025-06-10 21:27:14.604051",
+            "stock_quantity": 80
         },
         {
             "name": "Nike T-shirt",
@@ -64,7 +69,8 @@
             "in_stock": 1,
             "product_id": 6,
             "created_at": "2025-06-10 21:27:14.604085",
-            "updated_at": "2025-06-10 21:27:14.604089"
+            "updated_at": "2025-06-10 21:27:14.604089",
+            "stock_quantity": 200
         },
         {
             "name": "Samsung Galaxy S20",
@@ -75,7 +81,8 @@
             "in_stock": 1,
             "product_id": 7,
             "created_at": "2025-06-10 21:27:14.604122",
-            "updated_at": "2025-06-10 21:27:14.604126"
+            "updated_at": "2025-06-10 21:27:14.604126",
+            "stock_quantity": 45
         },
         {
             "name": "Sony Noise-Cancelling Headphones",
@@ -86,7 +93,8 @@
             "in_stock": 1,
             "product_id": 8,
             "created_at": "2025-06-10 21:27:14.604159",
-            "updated_at": "2025-06-10 21:27:14.604162"
+            "updated_at": "2025-06-10 21:27:14.604162",
+            "stock_quantity": 60
         },
         {
             "name": "Dell XPS 13",
@@ -97,7 +105,8 @@
             "in_stock": 1,
             "product_id": 9,
             "created_at": "2025-06-10 21:27:14.604195",
-            "updated_at": "2025-06-10 21:27:14.604199"
+            "updated_at": "2025-06-10 21:27:14.604199",
+            "stock_quantity": 25
         },
         {
             "name": "Apple iPad Pro",
@@ -108,7 +117,8 @@
             "in_stock": 1,
             "product_id": 10,
             "created_at": "2025-06-10 21:27:14.604231",
-            "updated_at": "2025-06-10 21:27:14.604235"
+            "updated_at": "2025-06-10 21:27:14.604235",
+            "stock_quantity": 40
         },
         {
             "name": "Dockers Loafers",
@@ -119,7 +129,8 @@
             "in_stock": 1,
             "product_id": 11,
             "created_at": "2025-06-10 21:27:14.604267",
-            "updated_at": "2025-06-10 21:27:14.604270"
+            "updated_at": "2025-06-10 21:27:14.604270",
+            "stock_quantity": 90
         },
         {
             "name": "Calvin Klein Jeans",
@@ -130,7 +141,8 @@
             "in_stock": 1,
             "product_id": 12,
             "created_at": "2025-06-10 21:27:14.604303",
-            "updated_at": "2025-06-10 21:27:14.604306"
+            "updated_at": "2025-06-10 21:27:14.604306",
+            "stock_quantity": 150
         },
         {
             "name": "Bose Soundbar 700",
@@ -141,7 +153,8 @@
             "in_stock": 1,
             "product_id": 13,
             "created_at": "2025-06-10 21:27:14.604339",
-            "updated_at": "2025-06-10 21:27:14.604342"
+            "updated_at": "2025-06-10 21:27:14.604342",
+            "stock_quantity": 20
         },
         {
             "name": "Samsung 55\" QLED TV",
@@ -152,7 +165,8 @@
             "in_stock": 1,
             "product_id": 14,
             "created_at": "2025-06-10 21:27:14.604377",
-            "updated_at": "2025-06-10 21:27:14.604380"
+            "updated_at": "2025-06-10 21:27:14.604380",
+            "stock_quantity": 15
         },
         {
             "name": "Fitbit Versa 2",
@@ -163,7 +177,8 @@
             "in_stock": 1,
             "product_id": 15,
             "created_at": "2025-06-10 21:27:14.604415",
-            "updated_at": "2025-06-10 21:27:14.604419"
+            "updated_at": "2025-06-10 21:27:14.604419",
+            "stock_quantity": 55
         },
         {
             "name": "Amazon Echo Dot",
@@ -174,7 +189,8 @@
             "in_stock": 1,
             "product_id": 16,
             "created_at": "2025-06-10 21:27:14.604451",
-            "updated_at": "2025-06-10 21:27:14.604454"
+            "updated_at": "2025-06-10 21:27:14.604454",
+            "stock_quantity": 100
         },
         {
             "name": "Google Nest Mini",
@@ -185,7 +201,8 @@
             "in_stock": 1,
             "product_id": 17,
             "created_at": "2025-06-10 21:27:14.604487",
-            "updated_at": "2025-06-10 21:27:14.604490"
+            "updated_at": "2025-06-10 21:27:14.604490",
+            "stock_quantity": 100
         },
         {
             "name": "Sony WH-1000XM3 Headphones",
@@ -196,7 +213,8 @@
             "in_stock": 1,
             "product_id": 18,
             "created_at": "2025-06-10 21:27:14.604523",
-            "updated_at": "2025-06-10 21:27:14.604526"
+            "updated_at": "2025-06-10 21:27:14.604526",
+            "stock_quantity": 35
         },
         {
             "name": "Dyson Hairdryer",
@@ -207,7 +225,8 @@
             "in_stock": 1,
             "product_id": 19,
             "created_at": "2025-06-10 21:27:14.604558",
-            "updated_at": "2025-06-10 21:27:14.604562"
+            "updated_at": "2025-06-10 21:27:14.604562",
+            "stock_quantity": 40
         },
         {
             "name": "Samsung Galaxy Buds",
@@ -218,7 +237,8 @@
             "in_stock": 1,
             "product_id": 20,
             "created_at": "2025-06-10 21:27:14.604596",
-            "updated_at": "2025-06-10 21:27:14.604599"
+            "updated_at": "2025-06-10 21:27:14.604599",
+            "stock_quantity": 85
         },
         {
             "name": "Bose QuietComfort 35 II",
@@ -229,7 +249,8 @@
             "in_stock": 1,
             "product_id": 21,
             "created_at": "2025-06-10 21:27:14.604633",
-            "updated_at": "2025-06-10 21:27:14.604636"
+            "updated_at": "2025-06-10 21:27:14.604636",
+            "stock_quantity": 30
         },
         {
             "name": "Apple MacBook Air",
@@ -240,7 +261,8 @@
             "in_stock": 1,
             "product_id": 22,
             "created_at": "2025-06-10 21:27:14.604669",
-            "updated_at": "2025-06-10 21:27:14.604672"
+            "updated_at": "2025-06-10 21:27:14.604672",
+            "stock_quantity": 20
         },
         {
             "name": "Google Pixel 4",
@@ -251,7 +273,8 @@
             "in_stock": 1,
             "product_id": 23,
             "created_at": "2025-06-10 21:27:14.604704",
-            "updated_at": "2025-06-10 21:27:14.604708"
+            "updated_at": "2025-06-10 21:27:14.604708",
+            "stock_quantity": 60
         }
     ],
     "orders": [

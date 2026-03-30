@@ -21,6 +21,7 @@ interface Product {
   category: string;
   in_stock: boolean | null;
   price: string;
+  stock_quantity: string;
 }
 
 const AddProductForm: React.FC = () => {
@@ -31,6 +32,7 @@ const AddProductForm: React.FC = () => {
     category: "",
     in_stock: null,
     price: "",
+    stock_quantity: "",
   });
 
   const navigate = useNavigate();
@@ -49,6 +51,7 @@ const AddProductForm: React.FC = () => {
       ...product,
       in_stock: product.in_stock === true,
       price: parseFloat(product.price),
+      stock_quantity: parseInt(product.stock_quantity) || 0,
     };
 
     try {
@@ -342,6 +345,38 @@ const AddProductForm: React.FC = () => {
               onChange={handleChange}
               className="w-full min-w-[280px] max-w-full px-4 py-2"
               data-testId="new_product_price"
+              style={{
+                fontFamily: 'inherit',
+                fontSize: '1rem',
+                fontWeight: 400,
+                border: '1.5px solid #d1d5db',
+                outline: 'none',
+                transition: 'border-color 0.2s, box-shadow 0.2s',
+              }}
+              onFocus={e => {
+                e.currentTarget.style.border = '1.5px solid #6b7280';
+                e.currentTarget.style.boxShadow = '0 0 0 1.5px #6b7280';
+              }}
+              onBlur={e => {
+                e.currentTarget.style.border = '1.5px solid #d1d5db';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
+            />
+          </div>
+
+          <div className="pb-1">
+            <label className="block text-sm font-medium text-gray-700 mb-1 text-left" data-testId="add-product-label-stockquantity">
+              Stock Quantity
+            </label>
+            <Input
+              name="stock_quantity"
+              placeholder="e.g. 100"
+              type="number"
+              min={0}
+              value={product.stock_quantity}
+              onChange={handleChange}
+              className="w-full min-w-[280px] max-w-full px-4 py-2"
+              data-testId="new_product_stock_quantity"
               style={{
                 fontFamily: 'inherit',
                 fontSize: '1rem',

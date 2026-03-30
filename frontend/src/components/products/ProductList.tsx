@@ -11,6 +11,8 @@ interface Product {
   category: string
   description: string
   image_url: string
+  in_stock: boolean
+  stock_quantity: number
   created_at: string
 }
 
