@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { productImageUrlMap } from '@/lib/product_utils'
 import { Button } from '@/components/ui/button'
 import { NavBar } from '../ui/navbar';
@@ -16,6 +16,9 @@ export default function ProductDetail() {
   const [formState, setFormState] = useState<any>(null);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
+  const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isDirtyRef = useRef(false);
 
   // Use shared getSessionIdFromCookie from utils
 
@@ -43,11 +46,13 @@ export default function ProductDetail() {
   // Handle input changes in edit mode
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
+    isDirtyRef.current = true;
     setFormState((prev: any) => ({ ...prev, [name]: value }));
   };
 
   // Save product changes
   const handleSave = async () => {
+    if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
     setSaving(true);
     const sessionId = getSessionIdFromCookie();
     try {
@@ -68,6 +73,8 @@ export default function ProductDetail() {
       });
       if (!res.ok) throw new Error('Failed to update product');
       setProduct({ ...product, ...formState });
+      isDirtyRef.current = false;
+      setSaveStatus('idle');
       setEditMode(false);
     } catch (err) {
       alert('Failed to save product.');
@@ -75,6 +82,54 @@ export default function ProductDetail() {
       setSaving(false);
     }
   };
+
+  // Auto-save: debounce 2s after the user stops typing while in edit mode
+  useEffect(() => {
+    if (!editMode || !isDirtyRef.current) return;
+
+    if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
+
+    autoSaveTimerRef.current = setTimeout(async () => {
+      if (!formState || !product) return;
+      setSaveStatus('saving');
+      const sessionId = getSessionIdFromCookie();
+      try {
+        const payload = {
+          ...formState,
+          price: parseFloat(formState.price),
+          in_stock: formState.in_stock === true || formState.in_stock === 'true',
+          image_url: formState.image_url || '',
+        };
+        const { product_id, created_at, updated_at, ...reducedPayload } = payload;
+        const res = await fetch(apiUrl(`/api/v1/products/${product.product_id}`), {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${sessionId}`
+          },
+          body: JSON.stringify(reducedPayload),
+        });
+        if (!res.ok) throw new Error('Failed to update product');
+        setProduct((prev: any) => ({ ...prev, ...formState }));
+        isDirtyRef.current = false;
+        setSaveStatus('saved');
+        setTimeout(() => setSaveStatus(s => s === 'saved' ? 'idle' : s), 2500);
+      } catch {
+        setSaveStatus('idle');
+      }
+    }, 2000);
+
+    return () => {
+      if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
+    };
+  }, [formState, editMode]);
+
+  // Clean up auto-save timer on component unmount
+  useEffect(() => {
+    return () => {
+      if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
+    };
+  }, []);
 
   // Delete product
   const handleDelete = async () => {
@@ -144,7 +199,10 @@ export default function ProductDetail() {
                   className="w-40 border rounded px-3 py-2"
                   name="in_stock"
                   value={formState?.in_stock ? 'true' : 'false'}
-                  onChange={e => setFormState((prev: any) => ({ ...prev, in_stock: e.target.value === 'true' }))}
+                  onChange={e => {
+                    isDirtyRef.current = true;
+                    setFormState((prev: any) => ({ ...prev, in_stock: e.target.value === 'true' }));
+                  }}
                   disabled={saving}
                   data-testId="product-detail-input-instock"
                 >
@@ -268,19 +326,34 @@ export default function ProductDetail() {
       {/* Buttons centered */}
       <div className="flex flex-col items-center" style={{ gap: '1rem', marginTop: '1.5rem' }} data-testId="product-detail-buttons">
         {editMode ? (
-          <Button
-            variant="default"
-            className="w-48"
-            onClick={handleSave}
-            disabled={saving}
-          >
-            {saving ? 'Saving...' : 'Save Product'}
-          </Button>
+          <>
+            <Button
+              variant="default"
+              className="w-48"
+              onClick={handleSave}
+              disabled={saving || saveStatus === 'saving'}
+            >
+              {saving ? 'Saving...' : 'Save Product'}
+            </Button>
+            {saveStatus !== 'idle' && (
+              <div
+                className="text-sm font-medium"
+                style={{ color: saveStatus === 'saving' ? '#6b7280' : '#16a34a' }}
+                data-testId="product-detail-save-status"
+              >
+                {saveStatus === 'saving' ? 'Saving...' : '✓ Saved'}
+              </div>
+            )}
+          </>
         ) : (
           <Button
             variant="default"
             className="w-48"
-            onClick={() => setEditMode(true)}
+            onClick={() => {
+              isDirtyRef.current = false;
+              setSaveStatus('idle');
+              setEditMode(true);
+            }}
             style={{
               color: '#fff', // White text
               background: '#111', // Black background
