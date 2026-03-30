@@ -38,6 +38,10 @@ const AddOrderForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [productsList, setProductsList] = useState<Product[]>([]);
   const [addingProduct, setAddingProduct] = useState<OrderProduct>({ product_id: "", quantity: 1 });
   const [error, setError] = useState<string | null>(null);
+  const [discountCode, setDiscountCode] = useState<string>("");
+  const [appliedDiscount, setAppliedDiscount] = useState<{ code: string; percentage: number } | null>(null);
+  const [discountError, setDiscountError] = useState<string | null>(null);
+  const [discountLoading, setDiscountLoading] = useState<boolean>(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -74,6 +78,42 @@ const AddOrderForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       items: prev.items.filter((_, i) => i !== idx),
     }));
   };
+
+  const handleApplyDiscount = async () => {
+    if (!discountCode.trim()) return;
+    if (!/^[a-zA-Z0-9]+$/.test(discountCode)) {
+      setDiscountError("Discount code must be alphanumeric (letters and numbers only).");
+      setAppliedDiscount(null);
+      return;
+    }
+    setDiscountLoading(true);
+    setDiscountError(null);
+    try {
+      const res = await fetch(apiUrl(`/api/v1/discounts/${discountCode.toUpperCase()}`), {
+        headers: { 'Authorization': `Bearer ${getSessionIdFromCookie()}` }
+      });
+      if (!res.ok) {
+        setDiscountError("Invalid discount code. Please try again.");
+        setAppliedDiscount(null);
+      } else {
+        const data = await res.json();
+        setAppliedDiscount({ code: data.code, percentage: data.discount_percentage });
+        setDiscountError(null);
+      }
+    } catch {
+      setDiscountError("Failed to validate discount code.");
+      setAppliedDiscount(null);
+    } finally {
+      setDiscountLoading(false);
+    }
+  };
+
+  const subtotal = order.items.reduce((sum, op) => {
+    const prod = productsList.find(p => String(p.product_id).trim() === String(op.product_id).trim());
+    return sum + (prod ? prod.price * op.quantity : 0);
+  }, 0);
+  const discountAmount = appliedDiscount ? (subtotal * appliedDiscount.percentage) / 100 : 0;
+  const finalTotal = subtotal - discountAmount;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -273,6 +313,67 @@ const AddOrderForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 )}
               </div>
             </div>
+            {/* Discount Code Section */}
+            <div className="pb-1" data-testId="add-order-discount-container">
+              <label className="block text-sm font-medium text-gray-700 mb-1 text-left" data-testId="add-order-label-discount">Discount Code</label>
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <Input
+                  placeholder="e.g. SAVE20"
+                  value={discountCode}
+                  onChange={e => {
+                    setDiscountCode(e.target.value.toUpperCase());
+                    setAppliedDiscount(null);
+                    setDiscountError(null);
+                  }}
+                  onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleApplyDiscount(); } }}
+                  className="w-full"
+                  style={{ fontFamily: 'inherit', fontSize: '1rem', fontWeight: 400, border: '1.5px solid #d1d5db', outline: 'none', transition: 'border-color 0.2s, box-shadow 0.2s' }}
+                  onFocus={e => { e.currentTarget.style.border = '1.5px solid #6b7280'; e.currentTarget.style.boxShadow = '0 0 0 1.5px #6b7280'; }}
+                  onBlur={e => { e.currentTarget.style.border = '1.5px solid #d1d5db'; e.currentTarget.style.boxShadow = 'none'; }}
+                  data-testId="add-order-input-discount-code"
+                />
+                <Button
+                  type="button"
+                  onClick={handleApplyDiscount}
+                  disabled={discountLoading || !discountCode.trim()}
+                  style={{ background: '#f3f4f6', color: '#111', border: '1.5px solid transparent', outline: 'none', transition: 'background 0.2s, border-color 0.2s', height: '2.5rem', borderRadius: '0.375rem', fontWeight: 500, whiteSpace: 'nowrap' }}
+                  onMouseOver={e => { if (!discountLoading && discountCode.trim()) { e.currentTarget.style.background = '#d1d5db'; e.currentTarget.style.border = '1.5px solid #000'; } }}
+                  onMouseOut={e => { e.currentTarget.style.background = '#f3f4f6'; e.currentTarget.style.border = '1.5px solid transparent'; }}
+                  data-testId="add-order-apply-discount-btn"
+                >
+                  {discountLoading ? 'Applying…' : 'Apply'}
+                </Button>
+              </div>
+              {discountError && (
+                <div className="text-red-500 text-sm mt-1" data-testId="add-order-discount-error">{discountError}</div>
+              )}
+              {appliedDiscount && (
+                <div className="text-green-600 text-sm mt-1" data-testId="add-order-discount-applied">✓ <strong>{appliedDiscount.code}</strong> applied — {appliedDiscount.percentage}% off</div>
+              )}
+            </div>
+
+            {/* Order Totals Summary */}
+            {order.items.length > 0 && (
+              <div style={{ border: '1.5px solid #e5e7eb', borderRadius: '0.5rem', background: '#f9fafb', padding: '0.75rem 1rem', marginBottom: '0.5rem' }} data-testId="add-order-totals-container">
+                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#374151', marginBottom: appliedDiscount ? '0.35rem' : 0 }} data-testId="add-order-subtotal">
+                  <span className="text-sm">{appliedDiscount ? 'Subtotal' : 'Total'}</span>
+                  <span className="text-sm">${subtotal.toFixed(2)}</span>
+                </div>
+                {appliedDiscount && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', color: '#16a34a', marginBottom: '0.35rem' }} data-testId="add-order-discount-amount">
+                    <span className="text-sm">Discount ({appliedDiscount.percentage}%)</span>
+                    <span className="text-sm">−${discountAmount.toFixed(2)}</span>
+                  </div>
+                )}
+                {appliedDiscount && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 600, color: '#111827', borderTop: '1.5px solid #e5e7eb', paddingTop: '0.35rem' }} data-testId="add-order-final-total">
+                    <span className="text-sm">Total</span>
+                    <span className="text-sm">${finalTotal.toFixed(2)}</span>
+                  </div>
+                )}
+              </div>
+            )}
+
             <Button type="submit" className="w-full text-black mt-2" style={{ background: '#f3f4f6', color: '#111', border: '1.5px solid transparent', outline: 'none', transition: 'background 0.2s, border-color 0.2s, outline 0.2s', width: '100%', marginTop: '0.5rem' }} onMouseOver={e => { e.currentTarget.style.background = '#d1d5db'; e.currentTarget.style.border = '1.5px solid #000'; }} onMouseOut={e => { e.currentTarget.style.background = '#f3f4f6'; e.currentTarget.style.border = '1.5px solid transparent'; }}>Add Order</Button>
           </div>
         </form>
