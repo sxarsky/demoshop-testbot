@@ -38,6 +38,7 @@ const AddOrderForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [productsList, setProductsList] = useState<Product[]>([]);
   const [addingProduct, setAddingProduct] = useState<OrderProduct>({ product_id: "", quantity: 1 });
   const [error, setError] = useState<string | null>(null);
+  const [duplicateWarning, setDuplicateWarning] = useState<string | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -59,7 +60,11 @@ const AddOrderForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     console.log("Current order items:", order.items);
     if (!addingProduct.product_id || addingProduct.quantity < 1) return;
     // Prevent duplicate products
-    if (order.items.some(p => p.product_id === addingProduct.product_id)) return;
+    if (order.items.some(p => p.product_id === addingProduct.product_id)) {
+      setDuplicateWarning("This product is already in your order. Update the quantity instead.");
+      setTimeout(() => setDuplicateWarning(null), 3000);
+      return;
+    }
     console.log("Adding product to order:", addingProduct);
     setOrder(prev => ({
       ...prev,
@@ -246,6 +251,11 @@ const AddOrderForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 />
                 <Button type="button" onClick={() => handleAddProduct()} style={{ background: '#f3f4f6', color: '#111', border: '1.5px solid transparent', outline: 'none', transition: 'background 0.2s, border-color 0.2s, outline 0.2s', marginLeft: '0.5rem', height: '2.5rem', borderRadius: '0.375rem', fontWeight: 500 }} onMouseOver={e => { e.currentTarget.style.background = '#d1d5db'; e.currentTarget.style.border = '1.5px solid #000'; }} onMouseOut={e => { e.currentTarget.style.background = '#f3f4f6'; e.currentTarget.style.border = '1.5px solid transparent'; }}>Add</Button>
               </div>
+              {duplicateWarning && (
+                <div className="text-yellow-600 text-sm mt-2" style={{ background: '#fefce8', border: '1px solid #fde68a', borderRadius: '0.375rem', padding: '0.4rem 0.75rem' }} data-testId="add-order-duplicate-warning">
+                  {duplicateWarning}
+                </div>
+              )}
               {/* List of products to be added */}
               <div style={{ marginTop: '0.5rem', maxHeight: '14rem', overflowY: 'auto' }}>
                 {order.items.length > 0 && (
