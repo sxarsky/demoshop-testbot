@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import ProductItem from "../products/ProductItem";
 import { NavBar } from "@/components/ui/navbar";
+import CancelOrderModal from "./CancelOrderModal";
 import { getSessionIdFromCookie } from '../../lib/utils';
 import { apiUrl } from '../../config';
 
@@ -14,6 +15,7 @@ export default function OrderDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [cancelling, setCancelling] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
 
   useEffect(() => {
     if (!order_id) return;
@@ -133,8 +135,9 @@ export default function OrderDetail() {
             <Button
               variant="destructive"
               className="w-fit"
-              onClick={handleCancelOrder}
+              onClick={() => setShowCancelModal(true)}
               disabled={cancelling}
+              data-testId="cancel-order-trigger"
               style={{
                 color: '#fff',
                 background: '#dc2626',
@@ -178,6 +181,17 @@ export default function OrderDetail() {
           </Button>
         </div>
       </div>
+
+      {/* Cancel Order Modal - BUG: No loading state shown */}
+      {showCancelModal && (
+        <CancelOrderModal
+          orderId={parseInt(order_id || '0')}
+          customerEmail={order.customer_email}
+          totalAmount={order.total_amount}
+          onConfirm={handleCancelOrder}
+          onCancel={() => setShowCancelModal(false)}
+        />
+      )}
     </div>
   );
 }
