@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { productImageUrlMap } from '@/lib/product_utils'
 import { Button } from '@/components/ui/button'
 import { NavBar } from '../ui/navbar';
@@ -16,6 +16,8 @@ export default function ProductDetail() {
   const [formState, setFormState] = useState<any>(null);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [autoSaveStatus, setAutoSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
+  const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Use shared getSessionIdFromCookie from utils
 
@@ -40,10 +42,65 @@ export default function ProductDetail() {
     if (product) setFormState(product);
   }, [product]);
 
+  // Cleanup auto-save timer on unmount
+  useEffect(() => {
+    return () => {
+      if (autoSaveTimerRef.current) {
+        clearTimeout(autoSaveTimerRef.current);
+      }
+    };
+  }, []);
+
+  // Auto-save function
+  const performAutoSave = async (dataToSave: any) => {
+    // BUG: No conflict detection - silently overwrites other user's changes
+    setAutoSaveStatus('saving');
+    const sessionId = getSessionIdFromCookie();
+    try {
+      const payload = {
+        ...dataToSave,
+        price: parseFloat(dataToSave.price),
+        in_stock: dataToSave.in_stock === true || dataToSave.in_stock === 'true',
+        image_url: dataToSave.image_url || '',
+      };
+      const { product_id, created_at, updated_at, ...reducedPayload } = payload;
+      const res = await fetch(apiUrl(`/api/v1/products/${product.product_id}`), {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${sessionId}`
+        },
+        body: JSON.stringify(reducedPayload),
+      });
+      if (!res.ok) throw new Error('Auto-save failed');
+      setProduct({ ...product, ...dataToSave });
+      // BUG: Status never changes to "Saved" - stays as "saving" forever
+      // setAutoSaveStatus('saved'); // This line is intentionally commented out
+    } catch (err) {
+      console.error('Auto-save error:', err);
+      setAutoSaveStatus('idle');
+    }
+  };
+
   // Handle input changes in edit mode
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormState((prev: any) => ({ ...prev, [name]: value }));
+    setFormState((prev: any) => {
+      const updated = { ...prev, [name]: value };
+
+      // BUG: Auto-save triggers on EVERY keystroke (performance issue)
+      // Should debounce to wait 2 seconds of inactivity, but instead triggers immediately
+      if (autoSaveTimerRef.current) {
+        clearTimeout(autoSaveTimerRef.current);
+      }
+
+      // Instead of waiting 2 seconds, this triggers immediately (0ms)
+      autoSaveTimerRef.current = setTimeout(() => {
+        performAutoSave(updated);
+      }, 0); // BUG: Should be 2000ms, but set to 0ms for immediate trigger
+
+      return updated;
+    });
   };
 
   // Save product changes
@@ -118,7 +175,14 @@ export default function ProductDetail() {
         <div className="text-gray-500 text-center" style={{ textAlign: 'left' }} data-testId="product-detail-notfound">Product not found.</div>
       )}
       {product && Object.keys(product).length > 0 && (
-        <div className="max-w-4xl mx-auto w-full bg-white rounded-2xl shadow-lg p-8 mb-8 flex flex-row gap-10" style={{ alignItems: 'flex-start', marginLeft: 0 }} data-testId="product-detail-main">
+        <div className="max-w-4xl mx-auto w-full bg-white rounded-2xl shadow-lg p-8 mb-8 flex flex-col gap-4" style={{ alignItems: 'flex-start', marginLeft: 0 }} data-testId="product-detail-main">
+          {/* Auto-save status indicator */}
+          {editMode && autoSaveStatus !== 'idle' && (
+            <div className="mb-2 text-sm" style={{ color: '#6b7280', fontStyle: 'italic' }} data-testId="autosave-status">
+              {autoSaveStatus === 'saving' ? 'Saving...' : 'Saved'}
+            </div>
+          )}
+          <div className="flex flex-row gap-10 w-full" style={{ alignItems: 'flex-start' }}>
           <div className="flex flex-col flex-1" style={{ gap: '1rem', alignItems: 'flex-start' }} data-testId="product-detail-info-container">
             {/* Name */}
             <div data-testId="product-detail-name">
@@ -263,6 +327,7 @@ export default function ProductDetail() {
               />
             </div>
           )}
+          </div>
         </div>
       )}
       {/* Buttons centered */}
@@ -323,24 +388,24 @@ export default function ProductDetail() {
         >
           {deleting ? 'Deleting...' : 'Delete Product'}
         </Button>
-        <Button 
-          variant="link" 
-          className="w-48" 
+        <Button
+          variant="link"
+          className="w-48"
           onClick={() => navigate('/products')}
-          style={{ 
+          style={{
             color: '#111', // Black text
             background: '#e5e7eb', // Slightly darker than #f3f4f6
             border: '1.5px solid transparent', // Reserve space for border
             transition: 'background 0.2s, border-color 0.2s, color 0.2s',
           }}
-          onMouseOver={e => { 
+          onMouseOver={e => {
             e.currentTarget.style.background = '#d1d5db'; // Darker grey on hover
             e.currentTarget.style.borderColor = '#111'; // Black border
             e.currentTarget.style.color = '#111'; // Keep text black on hover
           }}
-          onMouseOut={e => { 
+          onMouseOut={e => {
             e.currentTarget.style.background = '#e5e7eb'; // Slightly darker default
-            e.currentTarget.style.borderColor = 'transparent'; 
+            e.currentTarget.style.borderColor = 'transparent';
             e.currentTarget.style.color = '#111'; // Keep text black
           }}
         >
