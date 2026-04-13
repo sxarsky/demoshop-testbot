@@ -3,6 +3,25 @@ import { useLocation } from "react-router-dom"
 import ProductItem from "./ProductItem"
 import { getSessionIdFromCookie } from '../../lib/utils';
 import { apiUrl } from '../../config';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+const SORT_STORAGE_KEY = "productListSortOrder";
+
+type SortOption = "newest" | "name-asc" | "name-desc" | "price-asc" | "price-desc";
+
+const SORT_OPTIONS: { value: SortOption; label: string }[] = [
+  { value: "newest",     label: "Newest First" },
+  { value: "name-asc",   label: "Name: A-Z" },
+  { value: "name-desc",  label: "Name: Z-A" },
+  { value: "price-asc",  label: "Price: Low to High" },
+  { value: "price-desc", label: "Price: High to Low" },
+];
 
 interface Product {
   product_id: number
@@ -18,6 +37,9 @@ export default function ProductList() {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [sortOrder, setSortOrder] = useState<SortOption>(
+    () => (localStorage.getItem(SORT_STORAGE_KEY) as SortOption) ?? "newest"
+  );
   const location = useLocation();
 
   const fetchingRef = useRef(false);
@@ -53,11 +75,8 @@ export default function ProductList() {
           return res.json();
         })
         .then((data) => {
-          const sorted = (data || []).sort(
-            (a: { product_id: number; }, b: { product_id: number; }) => b.product_id - a.product_id
-          );
-          setProducts(sorted);
-          return sorted;
+          setProducts(data || []);
+          return data || [];
         })
         .catch(err => {
           setError(err.message);
@@ -83,34 +102,68 @@ export default function ProductList() {
   if (loading) return <div>Loading products...</div>
   if (error) return <div className="text-red-500">{error}</div>
 
+  const handleSortChange = (value: SortOption) => {
+    setSortOrder(value);
+    localStorage.setItem(SORT_STORAGE_KEY, value);
+  };
+
+  const sortedProducts = [...products].sort((a, b) => {
+    switch (sortOrder) {
+      case "name-asc":   return a.name.localeCompare(b.name);
+      case "name-desc":  return b.name.localeCompare(a.name);
+      case "price-asc":  return a.price - b.price;
+      case "price-desc": return b.price - a.price;
+      case "newest":
+      default:           return b.product_id - a.product_id;
+    }
+  });
+
   return (
-    <div
-      style={{
-        width: '100%',
-        display: 'flex',
-        flexWrap: 'wrap',
-        columnGap: '2.5rem', // more horizontal space between boxes
-        rowGap: '2.5rem', // more vertical space between boxes
-        justifyContent: 'center',
-        alignItems: 'stretch',
-      }}
-      data-testId="product-list"
-    >
-      {products.map(product => (
-        <div
-          key={product.product_id}
-          style={{
-            flex: '0 1 27%',
-            minWidth: '160px',
-            maxWidth: '27%',
-            height: '420px', // increased height
-            display: 'flex',
-            alignItems: 'stretch',
-          }}
-        >
-          <ProductItem product={product} minHeight={400} data-testId={`product-name-${product.name}`} />
-        </div>
-      ))}
+    <div data-testId="product-list">
+      {/* Sort dropdown */}
+      <div className="flex justify-end mb-4">
+        <Select value={sortOrder} onValueChange={handleSortChange}>
+          <SelectTrigger className="w-52" data-testId="sort-select">
+            <SelectValue placeholder="Sort by..." />
+          </SelectTrigger>
+          <SelectContent>
+            {SORT_OPTIONS.map(opt => (
+              <SelectItem key={opt.value} value={opt.value}>
+                {opt.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Product grid */}
+      <div
+        style={{
+          width: '100%',
+          display: 'flex',
+          flexWrap: 'wrap',
+          columnGap: '2.5rem', // more horizontal space between boxes
+          rowGap: '2.5rem', // more vertical space between boxes
+          justifyContent: 'center',
+          alignItems: 'stretch',
+        }}
+      >
+        {sortedProducts.map(product => (
+          <div
+            key={product.product_id}
+            style={{
+              flex: '0 1 27%',
+              minWidth: '160px',
+              maxWidth: '27%',
+              height: '420px', // increased height
+              display: 'flex',
+              alignItems: 'stretch',
+            }}
+          >
+            <ProductItem product={product} minHeight={400} data-testId={`product-name-${product.name}`} />
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
