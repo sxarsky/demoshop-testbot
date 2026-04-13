@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import ProductItem from "../products/ProductItem";
 import { NavBar } from "@/components/ui/navbar";
+import CancelOrderConfirmModal from "./CancelOrderConfirmModal";
 import { getSessionIdFromCookie } from '../../lib/utils';
 import { apiUrl } from '../../config';
 
@@ -14,6 +15,7 @@ export default function OrderDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [cancelling, setCancelling] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
 
   useEffect(() => {
     if (!order_id) return;
@@ -133,7 +135,7 @@ export default function OrderDetail() {
             <Button
               variant="destructive"
               className="w-fit"
-              onClick={handleCancelOrder}
+              onClick={() => setShowCancelModal(true)}
               disabled={cancelling}
               style={{
                 color: '#fff',
@@ -150,7 +152,7 @@ export default function OrderDetail() {
                 e.currentTarget.style.borderColor = 'transparent';
               }}
             >
-              {cancelling ? 'Cancelling...' : 'Cancel Order'}
+              Cancel Order
             </Button>
           )}
           <Button
@@ -178,6 +180,16 @@ export default function OrderDetail() {
           </Button>
         </div>
       </div>
+
+      <CancelOrderConfirmModal
+        open={showCancelModal}
+        onClose={() => setShowCancelModal(false)}
+        onConfirm={handleCancelOrder}
+        orderId={order.order_id ?? order_id}
+        customerEmail={order.customer_email}
+        totalAmount={order.total_amount}
+        confirming={cancelling}
+      />
     </div>
   );
 }
