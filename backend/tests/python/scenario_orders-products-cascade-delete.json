@@ -1,0 +1,106 @@
+[
+  {
+    "Source": "192.168.65.1:39998",
+    "Destination": "localhost",
+    "RequestBody": "{\"name\": \"TestProduct\", \"description\": \"Test product for cascade delete test\", \"price\": 19.99, \"image_url\": \"https://images.app.goo.gl/cgcHpeehRdu5osot8\", \"category\": \"Toys\", \"in_stock\": true}",
+    "ResponseBody": "{\"product_id\": 1, \"name\": \"TestProduct\", \"description\": \"Test product for cascade delete test\", \"price\": 19.99, \"image_url\": \"https://images.app.goo.gl/cgcHpeehRdu5osot8\", \"category\": \"Toys\", \"in_stock\": true, \"created_at\": \"2025-01-01T00:00:00\", \"updated_at\": \"2025-01-01T00:00:00\"}",
+    "RequestHeaders": {
+      "Content-Type": [
+        "application/json"
+      ],
+      "Authorization": [
+        "Bearer SKYRAMP_PLACEHOLDER_TOKEN"
+      ]
+    },
+    "ResponseHeaders": {
+      "Content-Type": [
+        "application/json"
+      ]
+    },
+    "Method": "POST",
+    "Path": "/api/v1/products",
+    "QueryParams": {},
+    "StatusCode": 201,
+    "Port": 8000,
+    "Timestamp": "2026-03-29T03:16:29.686Z",
+    "Scheme": "http"
+  },
+  {
+    "Source": "192.168.65.1:39998",
+    "Destination": "localhost",
+    "RequestBody": "{\"customer_email\": \"cascade@example.com\", \"items\": [{\"product_id\": 1, \"quantity\": 1}]}",
+    "ResponseBody": "{\"order_id\": 1, \"customer_email\": \"cascade@example.com\", \"status\": \"pending\", \"total_amount\": 19.99, \"items\": [{\"order_item_id\": 1, \"order_id\": 1, \"product_id\": 1, \"quantity\": 1}], \"created_at\": \"2025-01-01T00:00:00\", \"updated_at\": \"2025-01-01T00:00:00\"}",
+    "RequestHeaders": {
+      "Content-Type": [
+        "application/json"
+      ],
+      "Authorization": [
+        "Bearer SKYRAMP_PLACEHOLDER_TOKEN"
+      ]
+    },
+    "ResponseHeaders": {
+      "Content-Type": [
+        "application/json"
+      ]
+    },
+    "Method": "POST",
+    "Path": "/api/v1/orders",
+    "QueryParams": {},
+    "StatusCode": 201,
+    "Port": 8000,
+    "Timestamp": "2026-03-29T03:16:34.416Z",
+    "Scheme": "http"
+  },
+  {
+    "Source": "192.168.65.1:39998",
+    "Destination": "localhost",
+    "RequestBody": "",
+    "ResponseBody": "{\"message\": \"Order cancelled successfully\"}",
+    "RequestHeaders": {
+      "Content-Type": [
+        "application/json"
+      ],
+      "Authorization": [
+        "Bearer SKYRAMP_PLACEHOLDER_TOKEN"
+      ]
+    },
+    "ResponseHeaders": {
+      "Content-Type": [
+        "application/json"
+      ]
+    },
+    "Method": "DELETE",
+    "Path": "/api/v1/orders/1",
+    "QueryParams": {},
+    "StatusCode": 200,
+    "Port": 8000,
+    "Timestamp": "2026-03-29T03:16:40.822Z",
+    "Scheme": "http"
+  },
+  {
+    "Source": "192.168.65.1:39998",
+    "Destination": "localhost",
+    "RequestBody": "",
+    "ResponseBody": "{\"product_id\": 1, \"name\": \"TestProduct\", \"description\": \"Test product for cascade delete test\", \"price\": 19.99, \"image_url\": \"https://images.app.goo.gl/cgcHpeehRdu5osot8\", \"category\": \"Toys\", \"in_stock\": true, \"created_at\": \"2025-01-01T00:00:00\", \"updated_at\": \"2025-01-01T00:00:00\"}",
+    "RequestHeaders": {
+      "Content-Type": [
+        "application/json"
+      ],
+      "Authorization": [
+        "Bearer SKYRAMP_PLACEHOLDER_TOKEN"
+      ]
+    },
+    "ResponseHeaders": {
+      "Content-Type": [
+        "application/json"
+      ]
+    },
+    "Method": "GET",
+    "Path": "/api/v1/products/1",
+    "QueryParams": {},
+    "StatusCode": 200,
+    "Port": 8000,
+    "Timestamp": "2026-03-29T03:16:47.560Z",
+    "Scheme": "http"
+  }
+]
