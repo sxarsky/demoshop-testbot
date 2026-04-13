@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,11 @@ import "@/styles/select-zindex-workaround.css";
 import { useNavigate } from "react-router-dom";
 import { getSessionIdFromCookie } from '../../lib/utils';
 import { apiUrl } from '../../config';
+import {
+  formatFileSize,
+  readFileAsDataURL,
+  validateImageFile,
+} from "@/lib/imageUpload";
 
 interface Product {
   name: string;
@@ -32,6 +37,12 @@ const AddProductForm: React.FC = () => {
     in_stock: null,
     price: "",
   });
+  const [imageFileMeta, setImageFileMeta] = useState<{
+    name: string;
+    size: number;
+  } | null>(null);
+  const [imageError, setImageError] = useState<string | null>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
 
   const navigate = useNavigate();
 
@@ -41,6 +52,49 @@ const AddProductForm: React.FC = () => {
     const { name, value } = e.target;
     setProduct((prev) => ({ ...prev, [name]: value }));
   };
+
+  const handleImageFileChange = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const input = e.target;
+    const file = input.files?.[0];
+    input.value = "";
+    if (!file) return;
+
+    const validationError = validateImageFile(file);
+    if (validationError) {
+      setImageError(validationError);
+      return;
+    }
+    setImageError(null);
+    try {
+      const dataUrl = await readFileAsDataURL(file);
+      setProduct((prev) => ({ ...prev, image_url: dataUrl }));
+      setImageFileMeta({ name: file.name, size: file.size });
+    } catch {
+      setImageError("Could not read the image. Try another file.");
+    }
+  };
+
+  const clearProductImage = () => {
+    setProduct((prev) => ({ ...prev, image_url: "" }));
+    setImageFileMeta(null);
+    setImageError(null);
+    if (imageInputRef.current) {
+      imageInputRef.current.value = "";
+    }
+  };
+
+  const inputFocusRing = {
+    onFocus: (e: React.FocusEvent<HTMLElement>) => {
+      e.currentTarget.style.border = "1.5px solid #6b7280";
+      e.currentTarget.style.boxShadow = "0 0 0 1.5px #6b7280";
+    },
+    onBlur: (e: React.FocusEvent<HTMLElement>) => {
+      e.currentTarget.style.border = "1.5px solid #d1d5db";
+      e.currentTarget.style.boxShadow = "none";
+    },
+  } as const;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -218,33 +272,102 @@ const AddProductForm: React.FC = () => {
           </div>
 
           <div className="pb-1">
-            <label className="block text-sm font-medium text-gray-700 mb-1 text-left" data-testId="add-product-label-image-url">
-              Image URL
+            <label
+              className="block text-sm font-medium text-gray-700 mb-1 text-left"
+              data-testId="add-product-label-image-url"
+            >
+              Product image
             </label>
-            <Input
-              name="image_url"
-              placeholder="e.g. https://images.google.com"
-              value={product.image_url}
-              onChange={handleChange}
-              className="w-full min-w-[280px] max-w-full px-4 py-2"
+            <input
+              ref={imageInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
+              className="sr-only"
+              tabIndex={-1}
               data-testId="new_product_image_url"
-              style={{
-                fontFamily: 'inherit',
-                fontSize: '1rem',
-                fontWeight: 400,
-                border: '1.5px solid #d1d5db',
-                outline: 'none',
-                transition: 'border-color 0.2s, box-shadow 0.2s',
-              }}
-              onFocus={e => {
-                e.currentTarget.style.border = '1.5px solid #6b7280';
-                e.currentTarget.style.boxShadow = '0 0 0 1.5px #6b7280';
-              }}
-              onBlur={e => {
-                e.currentTarget.style.border = '1.5px solid #d1d5db';
-                e.currentTarget.style.boxShadow = 'none';
-              }}
+              onChange={handleImageFileChange}
             />
+            {!product.image_url ? (
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full min-w-[280px] max-w-full px-4 py-2 justify-center text-left font-normal"
+                style={{
+                  fontFamily: "inherit",
+                  fontSize: "1rem",
+                  fontWeight: 400,
+                  border: "1.5px solid #d1d5db",
+                  outline: "none",
+                  transition: "border-color 0.2s, box-shadow 0.2s",
+                  background: "#fff",
+                  color: "#111",
+                }}
+                {...inputFocusRing}
+                onClick={() => imageInputRef.current?.click()}
+                aria-label="Choose product image file"
+              >
+                Choose image (JPG, PNG, or WEBP, max 5MB)
+              </Button>
+            ) : (
+              <div
+                className="rounded-lg border border-gray-300 p-3 space-y-3"
+                style={{ borderWidth: "1.5px", borderColor: "#d1d5db" }}
+              >
+                <div className="flex justify-center bg-gray-50 rounded-md overflow-hidden">
+                  <img
+                    src={product.image_url}
+                    alt="Selected product preview"
+                    className="max-h-40 w-auto object-contain"
+                  />
+                </div>
+                <p className="text-sm text-gray-700 text-left break-all">
+                  <span className="font-medium">{imageFileMeta?.name}</span>
+                  {imageFileMeta != null && (
+                    <span className="text-gray-500">
+                      {" "}
+                      · {formatFileSize(imageFileMeta.size)}
+                    </span>
+                  )}
+                </p>
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="flex-1"
+                    style={{
+                      border: "1.5px solid #d1d5db",
+                      fontWeight: 400,
+                    }}
+                    {...inputFocusRing}
+                    onClick={clearProductImage}
+                  >
+                    Remove
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="flex-1"
+                    style={{
+                      border: "1.5px solid #d1d5db",
+                      fontWeight: 400,
+                    }}
+                    {...inputFocusRing}
+                    onClick={() => imageInputRef.current?.click()}
+                    aria-label="Replace product image with another file"
+                  >
+                    Replace
+                  </Button>
+                </div>
+              </div>
+            )}
+            {imageError && (
+              <p
+                className="text-sm text-red-600 mt-1 text-left"
+                role="alert"
+              >
+                {imageError}
+              </p>
+            )}
           </div>
 
           <div className="pb-1">
