@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom"
 import ProductItem from "./ProductItem"
 import { getSessionIdFromCookie } from '../../lib/utils';
 import { apiUrl } from '../../config';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 
 interface Product {
   product_id: number
@@ -18,6 +19,8 @@ export default function ProductList() {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  // BUG: Sort state is local and resets on re-render
+  const [sortBy, setSortBy] = useState("name-asc")
   const location = useLocation();
 
   const fetchingRef = useRef(false);
@@ -80,37 +83,92 @@ export default function ProductList() {
     return () => document.removeEventListener('visibilitychange', handleVisibility);
   }, [location, fetchProducts]);
 
+  // Sort products based on selected criteria
+  const sortedProducts = [...products].sort((a, b) => {
+    switch (sortBy) {
+      case "name-asc":
+        // BUG: Reversed - shows Z-A when user selects A-Z
+        // BUG: Case-sensitive - "apple" comes after "Zebra"
+        return b.name > a.name ? 1 : -1;
+      case "name-desc":
+        // BUG: Reversed - shows A-Z when user selects Z-A
+        return a.name > b.name ? 1 : -1;
+      case "price-asc":
+        // BUG: Reversed - high to low instead of low to high
+        return b.price - a.price;
+      case "price-desc":
+        // BUG: Reversed - low to high instead of high to low
+        return a.price - b.price;
+      case "newest":
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      default:
+        return 0;
+    }
+  });
+
   if (loading) return <div>Loading products...</div>
   if (error) return <div className="text-red-500">{error}</div>
 
   return (
-    <div
-      style={{
-        width: '100%',
+    <div style={{ width: '100%' }}>
+      {/* Sort Controls */}
+      <div style={{
         display: 'flex',
-        flexWrap: 'wrap',
-        columnGap: '2.5rem', // more horizontal space between boxes
-        rowGap: '2.5rem', // more vertical space between boxes
-        justifyContent: 'center',
-        alignItems: 'stretch',
-      }}
-      data-testId="product-list"
-    >
-      {products.map(product => (
-        <div
-          key={product.product_id}
-          style={{
-            flex: '0 1 27%',
-            minWidth: '160px',
-            maxWidth: '27%',
-            height: '420px', // increased height
-            display: 'flex',
-            alignItems: 'stretch',
-          }}
-        >
-          <ProductItem product={product} minHeight={400} data-testId={`product-name-${product.name}`} />
+        justifyContent: 'flex-end',
+        marginBottom: '1.5rem',
+        padding: '0 1rem'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <span style={{ color: '#6b7280', fontSize: '0.95rem', fontWeight: 500 }}>Sort by:</span>
+          <Select value={sortBy} onValueChange={setSortBy}>
+            <SelectTrigger style={{
+              width: '200px',
+              border: '1.5px solid #d1d5db',
+              borderRadius: '0.375rem',
+              padding: '0.5rem 1rem'
+            }}>
+              <SelectValue placeholder="Sort by..." />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="name-asc">Name: A-Z</SelectItem>
+              <SelectItem value="name-desc">Name: Z-A</SelectItem>
+              <SelectItem value="price-asc">Price: Low to High</SelectItem>
+              <SelectItem value="price-desc">Price: High to Low</SelectItem>
+              <SelectItem value="newest">Newest First</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
-      ))}
+      </div>
+
+      {/* Product Grid */}
+      <div
+        style={{
+          width: '100%',
+          display: 'flex',
+          flexWrap: 'wrap',
+          columnGap: '2.5rem',
+          rowGap: '2.5rem',
+          justifyContent: 'center',
+          alignItems: 'stretch',
+        }}
+        data-testId="product-list"
+      >
+        {sortedProducts.map(product => (
+          <div
+            key={product.product_id}
+            style={{
+              flex: '0 1 27%',
+              minWidth: '160px',
+              maxWidth: '27%',
+              height: '420px',
+              display: 'flex',
+              alignItems: 'stretch',
+            }}
+          >
+            <ProductItem product={product} minHeight={400} data-testId={`product-name-${product.name}`} />
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
