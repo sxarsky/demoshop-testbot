@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -38,7 +38,15 @@ const AddOrderForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [productsList, setProductsList] = useState<Product[]>([]);
   const [addingProduct, setAddingProduct] = useState<OrderProduct>({ product_id: "", quantity: 1 });
   const [error, setError] = useState<string | null>(null);
+  const [duplicateWarning, setDuplicateWarning] = useState<string | null>(null);
+  const duplicateWarningTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    return () => {
+      if (duplicateWarningTimerRef.current) clearTimeout(duplicateWarningTimerRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     fetch(apiUrl("/api/v1/products?limit=50"), {
@@ -58,8 +66,16 @@ const AddOrderForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     console.log("Adding product:", addingProduct);
     console.log("Current order items:", order.items);
     if (!addingProduct.product_id || addingProduct.quantity < 1) return;
-    // Prevent duplicate products
-    if (order.items.some(p => p.product_id === addingProduct.product_id)) return;
+    const selectedId = String(addingProduct.product_id).trim();
+    if (order.items.some(p => String(p.product_id).trim() === selectedId)) {
+      if (duplicateWarningTimerRef.current) clearTimeout(duplicateWarningTimerRef.current);
+      setDuplicateWarning("This product is already in your order. Update the quantity instead.");
+      duplicateWarningTimerRef.current = setTimeout(() => {
+        setDuplicateWarning(null);
+        duplicateWarningTimerRef.current = null;
+      }, 3000);
+      return;
+    }
     console.log("Adding product to order:", addingProduct);
     setOrder(prev => ({
       ...prev,
@@ -173,6 +189,11 @@ const AddOrderForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         </button>
         <h3 className="text-2xl font-semibold text-center mb-6" data-testId="add-order-heading">Add new order</h3>
         {error && <div className="text-red-500 text-center mb-2" data-testId={error === "All fields and at least one product are required." ? "add-order-error-required-fields" : undefined}>{error}</div>}
+        {duplicateWarning && (
+          <div className="text-amber-600 text-center mb-2" role="alert">
+            {duplicateWarning}
+          </div>
+        )}
         <form className="flex flex-col" style={{ gap: "1rem" }} onSubmit={handleSubmit}>
           <div data-testId="add-order-form-fields-container">
             <div className="pb-1">
